@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Comprehendly SDKs</title>
+    <style>
+      :root { font-family: ui-sans-serif, system-ui, sans-serif; color: #102a2a; line-height: 1.5; }
+      body { max-width: 760px; margin: 2.5rem auto; padding: 0 1.25rem; }
+      a { color: #0b6e6e; }
+      code, pre { font-family: ui-monospace, monospace; font-size: 0.9em; }
+      pre { background: #f3f7f7; padding: 1rem; overflow: auto; border-radius: 8px; }
+      h1 { font-size: 1.6rem; }
+      table { border-collapse: collapse; width: 100%; }
+      td, th { border-bottom: 1px solid #d5e4e4; text-align: left; padding: 0.4rem 0.3rem; }
+    </style>
+  </head>
+  <body>
+    <p>Comprehendly partner docs</p>
+    <h1>Forms SDKs</h1>
+    <p>
+      One API, many platforms. Private core owns the spec; public repos are what you clone.
+    </p>
+    <table>
+      <tr><th>Install</th><th>Repo</th></tr>
+      <tr><td>JavaScript</td><td><a href="https://github.com/flobo79/comprehendly-sdk-js">comprehendly-sdk-js</a></td></tr>
+      <tr><td>SwiftUI</td><td><a href="https://github.com/flobo79/comprehendly-sdk-swift">comprehendly-sdk-swift</a></td></tr>
+      <tr><td>CDN widget</td><td><a href="https://sdk.comprehendly.nz/embed/v1/forms.js">forms.js</a> (existing)</td></tr>
+    </table>
+    <h2>Same methods</h2>
+    <pre>configure({ publishableKey })
+catalog.list / page.get
+session.start({ pageId, mode: "assistant" | "silent" })
+store.bind({ elementId })   // existing host UI
+FormView                    // generated primitives
+submissions.save</pre>
+    <h2>Identity</h2>
+    <p><code>element.id</code> is the stable bind key. <code>field_name</code> is what voice and submissions write. Do not match on labels.</p>
+    <h2>Two surfaces</h2>
+    <ul>
+      <li><strong>Generated</strong> — SDK renders a linear field list from <code>forms.page.get</code>.</li>
+      <li><strong>Bound</strong> — you keep your widgets; the store patches them.</li>
+    </ul>
+    <h2>Get a tenant</h2>
+    <ol>
+      <li>Sign up at <a href="https://app.comprehendly.nz/signup">app.comprehendly.nz/signup</a></li>
+      <li>Publish a form. Settings → API → publishable key (<code>pk_*</code>).</li>
+      <li>Allowlist the demo origin (<code>http://localhost:4173</code> for JS, <code>https://ios-demo.comprehendly.nz</code> for Swift).</li>
+    </ol>
+    <p>
+      Spec files (OpenAPI, FieldStore, patch schema) ship in each SDK <code>spec/</code> folder
+      and in this site:
+      <a href="./spec/sdk-api.md">sdk-api.md</a> ·
+      <a href="./spec/openapi.yaml">openapi.yaml</a>
+    </p>
+  </body>
+</html>
