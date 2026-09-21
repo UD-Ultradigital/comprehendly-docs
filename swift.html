@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Swift — Comprehendly docs</title>
+    <link rel="stylesheet" href="assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Swift</h1>
+        <p>
+          Repo: <a href="https://github.com/flobo79/comprehendly-sdk-swift">comprehendly-sdk-swift</a>.
+          Product: <code>ComprehendlyForms</code> (iOS 16+, macOS 13+).
+        </p>
+
+        <h2>Add the package</h2>
+        <ol>
+          <li>Clone the repo (or add the GitHub URL once you depend on a tagged release).</li>
+          <li>Xcode → Package Dependencies → add local package → library <code>ComprehendlyForms</code>.</li>
+        </ol>
+
+        <h2>Client</h2>
+        <pre><code>import ComprehendlyForms
+
+let client = ComprehendlyClient(publishableKey: "pk_test_…")
+// default Origin: https://ios-demo.comprehendly.nz — must be on the key allowlist
+try await client.exchange()
+let page = try await client.pageGet(pageId)
+ComprehendlyFormView(store: client.store)</code></pre>
+        <p>
+          <code>catalogList()</code> returns gateway JSON. <code>pageGet</code> parses elements into
+          <code>ComprehendlyPage</code> and loads the store.
+        </p>
+
+        <h2>Demo app</h2>
+        <p>
+          There is no checked-in <code>.xcodeproj</code>. Create an iOS App target, add the package,
+          replace the app entry with <code>Examples/Demo/ComprehendlyDemoApp.swift</code>.
+        </p>
+
+        <h2>Origin header</h2>
+        <p>
+          URLSession does not send <code>Origin</code> unless you set it.
+          <code>ComprehendlyClient.origin</code> defaults to <code>https://ios-demo.comprehendly.nz</code>.
+          Change it if you allowlist a different origin, and keep the header and the key in sync.
+        </p>
+      </main>
+    </div>
+    <script src="assets/nav.js"></script>
+  </body>
+</html>

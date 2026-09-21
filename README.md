@@ -1,13 +1,9 @@
-# Comprehendly SDK docs
+# Comprehendly developer docs
 
-Public site for <https://docs.comprehendly.nz> (Vercel, Ultradigital team).
-
-Static HTML + a copy of `spec/` from the private core.
+Static site for [docs.comprehendly.nz](https://docs.comprehendly.nz). Source of the published developer guide (not marketing).
 
 ```bash
-git clone https://github.com/flobo79/comprehendly-docs.git
-cd comprehendly-docs
 python3 -m http.server 4174
 ```
 
-Production: Vercel project root = this repo; domain `docs.comprehendly.nz` → A `76.76.21.21` (or CNAME to `cname.vercel-dns.com`).
+Vercel: project `comprehendly-docs`, output `.`. Spec snapshots live in `spec/` (copied from sdk-core).

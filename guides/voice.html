@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Voice — Comprehendly docs</title>
+    <link rel="stylesheet" href="../assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Voice: assistant and silent</h1>
+        <p class="lead">
+          Use case: fill the same FieldStore from a microphone. Two modes, one mint operation.
+        </p>
+
+        <h2>Mint</h2>
+        <p>Gateway <code>forms.voice.start</code> (SDK <code>session.start</code>).</p>
+        <pre><code>await client.session.start({
+  pageId,
+  mode: 'assistant', // or 'silent'
+  uiConsentGranted: true,
+  assistantContext: { subject_name: 'Alex', purpose: 'Check-in' }
+})</code></pre>
+        <p>Response <code>data</code> includes <code>client_secret</code>, <code>session_mode</code>, <code>form_voice_session_id</code>, <code>expires_at</code>.</p>
+        <p>
+          Connect that secret to the hosted Realtime client. In the browser, the iframe fill UI
+          and <code>forms.js</code> already do this. Native: load a WebView pointed at the SDK origin;
+          do not implement gpt-realtime yourself in v1.
+        </p>
+
+        <h2>Modes</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>mode</th>
+              <th>When to use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>silent</code></td>
+              <td>Passive listening / dictation. No spoken agent.</td>
+            </tr>
+            <tr>
+              <td><code>assistant</code></td>
+              <td>Spoken walkthrough of the published page (same script family as phone fill).</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Consent</h2>
+        <p>
+          If your UI already collected recording consent, pass <code>ui_consent_granted: true</code> (SDK default).
+          If not, pass <code>false</code> and do not start audio until the user accepts.
+        </p>
+
+        <h2>Status in these SDKs</h2>
+        <ul>
+          <li>JS client: <code>session.start</code> mints. Wire the returned secret, or use the CDN widget / iframe for a full voice UI.</li>
+          <li>Swift client: HTTP mint is implemented. WKWebView bridge to apply live patches into FieldStore is not in v0.1.</li>
+        </ul>
+      </main>
+    </div>
+    <script src="../assets/nav.js"></script>
+  </body>
+</html>

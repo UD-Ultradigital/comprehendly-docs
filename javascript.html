@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JavaScript — Comprehendly docs</title>
+    <link rel="stylesheet" href="assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>JavaScript</h1>
+        <p>
+          Repo: <a href="https://github.com/flobo79/comprehendly-sdk-js">comprehendly-sdk-js</a>.
+          Entry: <code>src/index.js</code> (<code>export class Comprehendly</code>).
+        </p>
+
+        <h2>Constructor</h2>
+        <pre><code>new Comprehendly({
+  publishableKey,      // required
+  origin,              // set Origin header only in non-browser runtimes
+  functionsUrl,        // default production Functions URL
+  anonKey              // default platform anon key
+})</code></pre>
+        <p><code>client.store</code> is created with the client. <code>page.get</code> calls <code>store.loadPage</code>.</p>
+
+        <h2>Demo</h2>
+        <pre><code>git clone https://github.com/flobo79/comprehendly-sdk-js.git
+cd comprehendly-sdk-js
+cp demo/env.example.js demo/env.js
+# publishableKey, optional pageId
+python3 -m http.server 4173 --directory demo</code></pre>
+        <p>Allowlist <code>http://localhost:4173</code>. The page shows generated controls and host-bound inputs on the same store.</p>
+
+        <h2>CDN widget</h2>
+        <p>
+          <a href="https://sdk.comprehendly.nz/embed/v1/forms.js"><code>https://sdk.comprehendly.nz/embed/v1/forms.js</code></a>
+          mounts iframes (<code>StepCareForms.init</code>). Use it when you want the hosted fill UI, not FieldStore.
+        </p>
+      </main>
+    </div>
+    <script src="assets/nav.js"></script>
+  </body>
+</html>

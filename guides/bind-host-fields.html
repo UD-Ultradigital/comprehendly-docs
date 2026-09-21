@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bind existing fields — Comprehendly docs</title>
+    <link rel="stylesheet" href="../assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Bind existing fields</h1>
+        <p class="lead">
+          Use case: the host already has a form (SwiftUI, DOM, or another toolkit).
+          Keep those widgets. Map each one to a Comprehendly element so voice and save use the same values.
+        </p>
+
+        <h2>Mapping</h2>
+        <p>Prefer <code>element.id</code> from <code>forms.page.get</code>. Persist that id in your app (accessibility identifier, <code>data-element-id</code>, etc.).</p>
+        <pre><code>client.store.bind({ elementId: 'el-mood' }, (value) => {
+  hostInput.value = value ?? ''
+})
+
+hostInput.addEventListener('input', () => {
+  client.store.set({
+    elementId: 'el-mood',
+    value: hostInput.value,
+    source: 'bind'
+  })
+})</code></pre>
+        <p>Swift:</p>
+        <pre><code>try client.store.bind(elementId: "el-mood") { value in
+  mood = value as? String ?? ""
+}
+try client.store.set(elementId: "el-mood", value: mood, source: "bind")</code></pre>
+
+        <h2>Partial mapping</h2>
+        <p>
+          You do not have to bind every field. Unmapped fields still receive voice patches in the store.
+          Either ignore them or show an “also captured” list from <code>store.values()</code>.
+        </p>
+
+        <h2>When bind is required</h2>
+        <ul>
+          <li>Custom layout or CSS the generated list cannot reproduce.</li>
+          <li>Conditional sections you already implement in the host.</li>
+          <li>Controls the SDK does not render yet (rating, score, tree, signatures).</li>
+        </ul>
+        <p class="note">Do not draw a second Comprehendly form on top of host controls. One widget per field.</p>
+      </main>
+    </div>
+    <script src="../assets/nav.js"></script>
+  </body>
+</html>

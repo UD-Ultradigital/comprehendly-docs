@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Errors — Comprehendly docs</title>
+    <link rel="stylesheet" href="assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Errors</h1>
+        <p>Exchange and gateway return JSON <code>error</code> plus <code>error_code</code>. SDKs throw with <code>err.code</code> (JS) or <code>ComprehendlyError.http</code> (Swift).</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th><code>error_code</code></th>
+              <th>Typical cause</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>400</td>
+              <td><code>invalid_key</code> / <code>invalid_params</code></td>
+              <td>Key format, missing <code>page_id</code>, non-UUID page id</td>
+            </tr>
+            <tr>
+              <td>401</td>
+              <td><code>invalid_credentials</code> / <code>credential_expired</code></td>
+              <td>Wrong or revoked key; token expired — exchange again</td>
+            </tr>
+            <tr>
+              <td>403</td>
+              <td><code>origin_not_allowed</code></td>
+              <td>Allowlist must match the request <code>Origin</code> exactly</td>
+            </tr>
+            <tr>
+              <td>403</td>
+              <td><code>scope_denied</code></td>
+              <td>Requested scopes not granted on the key</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Checklist for origin_not_allowed</h2>
+        <ul>
+          <li>No trailing slash or path on the allowlist entry.</li>
+          <li>JS demo: <code>http://localhost:4173</code> not <code>127.0.0.1</code> unless that is what you allowlisted.</li>
+          <li>Swift: header <code>Origin</code> equals <code>ComprehendlyClient.origin</code> (default <code>https://ios-demo.comprehendly.nz</code>).</li>
+          <li>file:// pages have no usable origin — serve over http(s).</li>
+        </ul>
+      </main>
+    </div>
+    <script src="assets/nav.js"></script>
+  </body>
+</html>
