@@ -52,7 +52,11 @@ mountVoice()
 window.addEventListener('message', (event) => {
   const voiceFrame = document.querySelector('#voice iframe')
   if (!voiceFrame) return
+
+  const bridgeURL = new URL(voiceFrame.src ?? '../voice-bridge.html', window.location.href)
+  const embedOrigin = new URL(bridgeURL.searchParams.get('base_url') ?? 'https://sdk.comprehendly.nz').origin
   if (event.source !== voiceFrame.contentWindow) return
+  if (![bridgeURL.origin, embedOrigin].includes(event.origin)) return
 
   const fieldValues = event.data?.field_values ?? event.data?.fieldValues
   if (event.data?.type === 'stepcare:fields_updated' && fieldValues) {
