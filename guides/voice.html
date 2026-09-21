@@ -37,7 +37,13 @@ mountVoiceBridge('#voice', {
   store: client.store
 })
 
+const allowedOrigins = new Set([
+  'https://docs.comprehendly.nz',
+  'https://sdk.comprehendly.nz'
+])
+
 window.addEventListener('message', (event) => {
+  if (!allowedOrigins.has(event.origin)) return
   if (event.data?.type === 'stepcare:fields_updated') {
     console.log('Field values updated from voice', event.data.field_values)
   }
