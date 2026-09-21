@@ -75,7 +75,7 @@ let voiceURL = try client.voiceBridgeURL(
 
 VoiceBridgeView(url: voiceURL, store: client.store)</code></pre>
 
-        <p class="note">If <code>ensureExchangeToken()</code> refreshes the short-lived token later, call <code>mountVoice()</code> again so the bridge reloads with the new token. In this hosted-bridge flow, listen for the forwarded message from the mounted <code>voice-bridge.html</code> iframe rather than trusting unrelated frames from the same embed origin.</p>
+        <p class="note">If the short-lived token is renewed later, remount the JavaScript bridge or recreate the Swift bridge URL so the hosted bridge uses the new token. In this hosted-bridge flow, listen for the forwarded message from the mounted <code>voice-bridge.html</code> iframe rather than trusting unrelated frames from the same embed origin.</p>
 
         <h2>Limits</h2>
         <ul>
