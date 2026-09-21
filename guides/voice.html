@@ -53,9 +53,11 @@ window.addEventListener('message', (event) => {
   const voiceFrame = document.querySelector('#voice iframe')
   if (!voiceFrame) return
 
-  const voiceOrigin = new URL(voiceFrame.src ?? '../voice-bridge.html', window.location.href).origin
-  if (event.source !== voiceFrame.contentWindow) return
-  if (event.origin !== voiceOrigin) return
+  const bridgeURL = new URL(voiceFrame.src ?? '../voice-bridge.html', window.location.href)
+  const embedOrigin = new URL(bridgeURL.searchParams.get('base_url') ?? 'https://sdk.comprehendly.nz').origin
+  const fromBridge = event.source === voiceFrame.contentWindow && event.origin === bridgeURL.origin
+  const fromEmbed = event.origin === embedOrigin
+  if (!fromBridge && !fromEmbed) return
   if (event.data?.type === 'stepcare:fields_updated') {
     console.log('Field values updated from voice', event.data.field_values)
   }

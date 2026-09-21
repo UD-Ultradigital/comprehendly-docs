@@ -55,9 +55,10 @@ let client = ComprehendlyClient(publishableKey: "pk_test_…")
 var tokenExpiresAt = Date.distantPast
 
 func ensureExchangeToken() async throws {
-  if Date() < tokenExpiresAt.addingTimeInterval(-60) { return }
-  let session = try await client.exchange()
-  tokenExpiresAt = Date().addingTimeInterval(TimeInterval(session.expiresIn))
+  if Date() >= tokenExpiresAt.addingTimeInterval(-60) {
+    let session = try await client.exchange()
+    tokenExpiresAt = Date().addingTimeInterval(TimeInterval(session.expiresIn))
+  }
 }
 
 try await ensureExchangeToken()
