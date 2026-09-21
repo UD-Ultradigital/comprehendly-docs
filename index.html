@@ -3,85 +3,113 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Overview — Comprehendly docs</title>
+    <title>Introduction — Comprehendly docs</title>
     <link rel="stylesheet" href="assets/docs.css" />
   </head>
   <body>
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>Comprehendly Forms SDK</h1>
+        <h1>Introduction</h1>
         <p class="lead">
-          Client libraries for the Forms integration API. Use them to list published
-          forms, load a page definition, fill fields (UI or voice), and save a submission.
-        </p>
-        <p>
-          apiVersion <code>1</code>. Method names are the same on every platform
-          (idiomatic casing allowed: <code>page.get</code> ≡ <code>pageGet</code>).
+          These libraries talk to the Forms integration API: list published forms,
+          load a page, keep field values in a FieldStore, and save a submission.
         </p>
 
-        <h2>What you integrate with</h2>
+        <div class="toc">
+          <p>On this page</p>
+          <ul>
+            <li><a href="#what-you-build">What you build</a></li>
+            <li><a href="#request-flow">Request flow</a></li>
+            <li><a href="#choose-a-guide">Choose a guide</a></li>
+            <li><a href="#packages">Packages</a></li>
+          </ul>
+        </div>
+
+        <h2 id="what-you-build">What you build</h2>
+        <p>
+          A host app that fills a published Comprehendly form. You pick one of two
+          UI surfaces; both share the same store and save path.
+        </p>
         <table>
           <thead>
             <tr>
-              <th>Piece</th>
-              <th>Role</th>
+              <th>Surface</th>
+              <th>When</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Publishable key (<code>pk_test_</code> / <code>pk_live_</code>)</td>
-              <td>Tenant credential. Exchanged for a short-lived token. Not a user JWT.</td>
+              <td>Generated <code>FormView</code></td>
+              <td>The host has no form widgets. The SDK draws a linear list of inputs.</td>
             </tr>
             <tr>
-              <td><code>integration_exchange</code></td>
-              <td>Key → <code>access_token</code>. Requires an allowlisted <code>Origin</code>.</td>
-            </tr>
-            <tr>
-              <td><code>integration_gateway</code></td>
-              <td>RPC: catalog, page, voice, submissions, prepared sessions.</td>
-            </tr>
-            <tr>
-              <td>FieldStore</td>
-              <td>In-memory field values for one fill. Voice and UI both write here.</td>
+              <td>Bind</td>
+              <td>The host already has widgets. Map <code>element.id</code> → control.</td>
             </tr>
           </tbody>
         </table>
+        <p>
+          Voice writes the same store through a hosted WebView/iframe. Do not
+          implement Realtime in the native SDK.
+        </p>
+        <p>
+          The CDN script
+          <a href="https://sdk.comprehendly.nz/embed/v1/forms.js"><code>forms.js</code></a>
+          is a separate iframe widget. Use it when you want the hosted fill UI, not FieldStore.
+        </p>
 
-        <h2>Choose a path</h2>
+        <h2 id="request-flow">Request flow</h2>
+        <ol>
+          <li>Exchange a publishable key (<code>pk_*</code>) for a short-lived <code>access_token</code>.</li>
+          <li>Call gateway operations with that token (<code>catalog.list</code>, <code>page.get</code>, save, voice mint).</li>
+          <li><code>page.get</code> loads fillable fields into FieldStore.</li>
+          <li>User, bind, or voice patches merge in the store.</li>
+          <li><code>submissions.save</code> sends values keyed by <code>field_name</code>.</li>
+        </ol>
+        <p>
+          Method names are the same on every platform (idiomatic casing:
+          <code>page.get</code> ≡ <code>pageGet</code>). apiVersion <code>1</code>.
+        </p>
+
+        <h2 id="choose-a-guide">Choose a guide</h2>
         <table>
           <thead>
             <tr>
-              <th>If you…</th>
-              <th>Then</th>
+              <th>Task</th>
+              <th>Guide</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Need a form UI and do not already have widgets</td>
-              <td><a href="guides/render-a-form.html">Render a form from a page</a></td>
+              <td>First working call</td>
+              <td><a href="quickstart.html">Quickstart</a></td>
             </tr>
             <tr>
-              <td>Already have native or DOM fields</td>
+              <td>Draw fields from a page</td>
+              <td><a href="guides/render-a-form.html">Render a form</a></td>
+            </tr>
+            <tr>
+              <td>Keep existing widgets</td>
               <td><a href="guides/bind-host-fields.html">Bind existing fields</a></td>
             </tr>
             <tr>
-              <td>Want spoken walkthrough or mic-only capture</td>
-              <td><a href="guides/voice.html">Voice: assistant and silent</a></td>
+              <td>Mic fill (silent or assistant)</td>
+              <td><a href="guides/voice.html">Fill with voice</a></td>
             </tr>
             <tr>
-              <td>Want the hosted iframe / script tag</td>
-              <td>CDN <a href="https://sdk.comprehendly.nz/embed/v1/forms.js"><code>forms.js</code></a> (widget; not the FieldStore client)</td>
+              <td>Persist the store</td>
+              <td><a href="guides/save-a-submission.html">Save a submission</a></td>
             </tr>
           </tbody>
         </table>
 
-        <h2>Repositories</h2>
+        <h2 id="packages">Packages</h2>
         <table>
           <thead>
             <tr>
-              <th>Package</th>
-              <th>Repo</th>
+              <th>Platform</th>
+              <th>Repository</th>
             </tr>
           </thead>
           <tbody>
@@ -95,7 +123,11 @@
             </tr>
           </tbody>
         </table>
-        <p class="muted">Start with <a href="start.html">Install and authenticate</a>.</p>
+
+        <div class="pager">
+          <span></span>
+          <a href="quickstart.html"><span>Next</span>Quickstart</a>
+        </div>
       </main>
     </div>
     <script src="assets/nav.js"></script>

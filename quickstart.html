@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quickstart — Comprehendly docs</title>
+    <link rel="stylesheet" href="assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Quickstart</h1>
+        <p class="lead">
+          Exchange a publishable key, list published forms, load one page into FieldStore.
+        </p>
+
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>A tenant at <a href="https://app.comprehendly.nz/signup">app.comprehendly.nz</a></li>
+          <li>At least one <strong>published</strong> form page</li>
+          <li>A publishable key (<code>pk_test_</code> or <code>pk_live_</code>)</li>
+          <li>That key’s origin allowlist includes the origin your client sends</li>
+        </ul>
+        <p>
+          Scopes on the key: <code>forms.schemas:read</code>,
+          <code>forms.submissions:read</code>, <code>forms.submissions:write</code>.
+          Full exchange details: <a href="start.html">Authentication</a>.
+        </p>
+
+        <h2>JavaScript</h2>
+        <pre><code>import { Comprehendly } from './src/index.js'
+
+const client = new Comprehendly({ publishableKey: 'pk_test_…' })
+await client.exchange()
+
+const catalog = await client.catalog.list()
+const pageId = catalog.forms[0].id
+const page = await client.page.get(pageId)
+
+console.log(client.store.fields())</code></pre>
+        <p>
+          Clone the repo and serve the demo (allowlist <code>http://localhost:4173</code>):
+        </p>
+        <pre><code>git clone https://github.com/UD-Ultradigital/comprehendly-sdk-js.git
+cd comprehendly-sdk-js
+cp demo/env.example.js demo/env.js   # set publishableKey
+npm run demo
+# open http://localhost:4173/demo/</code></pre>
+
+        <h2>Swift</h2>
+        <pre><code>import ComprehendlyForms
+
+let client = ComprehendlyClient(publishableKey: "pk_test_…")
+try await client.exchange()
+let catalog = try await client.catalogList()
+let page = try await client.pageGet(pageId)
+print(client.store.fields)</code></pre>
+        <p>
+          Default request <code>Origin</code> is <code>https://ios-demo.comprehendly.nz</code>.
+          Add that exact origin to the key allowlist, or pass a different
+          <code>origin:</code> that matches the allowlist. Package install:
+          <a href="swift.html">Swift</a>.
+        </p>
+
+        <h2>Next</h2>
+        <p>
+          Draw inputs from the store: <a href="guides/render-a-form.html">Render a form</a>.
+          Or map host widgets: <a href="guides/bind-host-fields.html">Bind existing fields</a>.
+        </p>
+
+        <div class="pager">
+          <a href="index.html"><span>Previous</span>Introduction</a>
+          <a href="start.html"><span>Next</span>Authentication</a>
+        </div>
+      </main>
+    </div>
+    <script src="assets/nav.js"></script>
+  </body>
+</html>

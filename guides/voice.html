@@ -10,7 +10,7 @@
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>Voice: assistant and silent</h1>
+        <h1>Fill with voice</h1>
         <p class="lead">
           Use case: fill the same FieldStore from a microphone. Two modes, one mint operation.
         </p>
@@ -99,6 +99,16 @@ VoiceBridgeView(url: url, store: client.store)</code></pre>
           <li>JS: <code>mountVoiceBridge</code> + demo Assistant/Silent buttons.</li>
           <li>Swift: <code>VoiceBridgeView</code> WKWebView; demo sheet.</li>
         </ul>
+        <p>
+          Until production <code>sdk.comprehendly.nz</code> ships forms.js v1.3, pass a preview
+          <code>base_url</code> / <code>sdkOrigin</code> so FieldStore hydrates from
+          <code>stepcare:fields_updated</code>.
+        </p>
+
+        <div class="pager">
+          <a href="bind-host-fields.html"><span>Previous</span>Bind existing fields</a>
+          <a href="save-a-submission.html"><span>Next</span>Save a submission</a>
+        </div>
       </main>
     </div>
     <script src="../assets/nav.js"></script>

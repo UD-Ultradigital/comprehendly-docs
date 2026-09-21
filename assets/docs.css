@@ -46,6 +46,11 @@ table { border-collapse: collapse; width: 100%; font-size: 0.92rem; margin: 0.75
 th, td { border-bottom: 1px solid var(--border); text-align: left; padding: 0.45rem 0.4rem; vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
 .note { border-left: 3px solid var(--border); padding: 0.35rem 0.75rem; margin: 1rem 0; }
+.toc { font-size: 0.9rem; margin: 0 0 1.5rem; padding: 0.75rem 1rem; background: var(--aside); border-radius: 6px; }
+.toc p { margin: 0 0 0.35rem; font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.toc ul { margin: 0; padding-left: 1.1rem; }
+.pager { display: flex; justify-content: space-between; gap: 1rem; margin: 2.5rem 0 0; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.92rem; }
+.pager span { color: var(--muted); display: block; font-size: 0.75rem; }
 @media (max-width: 800px) {
   .wrap { grid-template-columns: 1fr; }
   nav { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }

@@ -12,14 +12,25 @@
       <main>
         <h1>Concepts</h1>
 
-        <h2>Page vs submission</h2>
+        <div class="toc">
+          <p>On this page</p>
+          <ul>
+            <li><a href="#page">Page and submission</a></li>
+            <li><a href="#identity">Field identity</a></li>
+            <li><a href="#store">FieldStore</a></li>
+            <li><a href="#surfaces">Generated vs bound</a></li>
+            <li><a href="#voice">Voice</a></li>
+          </ul>
+        </div>
+
+        <h2 id="page">Page and submission</h2>
         <p>
           A <strong>form</strong> is a published page (<code>page_type = form</code>) identified by
-          <code>page_id</code> (UUID). Fill creates a <strong>submission</strong> (child page) whose
-          values are keyed by <code>field_name</code>.
+          <code>page_id</code> (UUID). Fill creates a <strong>submission</strong> (child page).
+          Submission values are keyed by <code>field_name</code>.
         </p>
 
-        <h2>Field identity</h2>
+        <h2 id="identity">Field identity</h2>
         <table>
           <thead>
             <tr>
@@ -32,63 +43,63 @@
             <tr>
               <td><code>element.id</code></td>
               <td>Yes (page node)</td>
-              <td>Preferred bind key for host widgets</td>
+              <td>Bind host widgets</td>
             </tr>
             <tr>
               <td><code>data.field_name</code></td>
               <td>Can change if authors rename</td>
-              <td>Voice tools, submission payload, <code>store.get</code></td>
+              <td>Voice tools, <code>store.get</code>, save payload</td>
             </tr>
             <tr>
               <td>Label</td>
               <td>Display only</td>
-              <td>Do not match or bind on label</td>
+              <td>Never match or bind on label</td>
             </tr>
           </tbody>
         </table>
         <p>
           After each <code>page.get</code>, resolve <code>element.id</code> → current
-          <code>field_name</code>. The store does this internally when you <code>bind({ elementId })</code>.
+          <code>field_name</code>. <code>store.bind({ elementId })</code> does that lookup.
         </p>
 
-        <h2>FieldStore</h2>
+        <h2 id="store">FieldStore</h2>
         <p>
           One store per fill session. <code>page.get</code> loads fillable elements.
-          <code>set</code> / voice patches / host edits all merge into the same map.
+          User edits, bind, and voice patches merge into the same map.
         </p>
         <p>Fillable element types: <code>form_field</code>, <code>form_field_rating</code>, <code>form_field_score</code>.</p>
         <p>
           Generated UI in v1 implements <code>form_field</code> input types:
           <code>text</code>, <code>textarea</code>, <code>number</code>, <code>date</code>,
           <code>boolean</code>, <code>select</code>, <code>multiselect</code>.
-          Layout nodes (headings, columns, media) are ignored. The SDK does not clone page layout.
+          Layout nodes (headings, columns, media) are skipped. The SDK does not clone page layout.
         </p>
 
-        <h2>Generated vs bound</h2>
+        <h2 id="surfaces">Generated vs bound</h2>
         <table>
           <thead>
             <tr>
               <th>Surface</th>
               <th>Who draws the control</th>
-              <th>When</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Generated (<code>FormView</code>)</td>
-              <td>SDK</td>
-              <td>You do not already have a form UI</td>
+              <td>SDK — linear list of primitives</td>
             </tr>
             <tr>
               <td>Bound</td>
-              <td>Your app</td>
-              <td>Existing or heavily styled widgets. Map <code>element.id</code> → control.</td>
+              <td>Host — map <code>element.id</code> → existing widget</td>
             </tr>
           </tbody>
         </table>
-        <p>Do not overlay Comprehendly chrome on host widgets. Unmapped fields still live in the store; show them separately or drop them.</p>
+        <p>
+          Do not overlay a second Comprehendly form on host widgets. Unmapped fields
+          still live in the store; render them separately or ignore them on save.
+        </p>
 
-        <h2>Voice modes</h2>
+        <h2 id="voice">Voice</h2>
         <table>
           <thead>
             <tr>
@@ -108,9 +119,15 @@
           </tbody>
         </table>
         <p>
-          Mint is <code>forms.voice.start</code>. The talker is hosted Realtime, not a platform speech API.
-          Native apps should load the WebView bridge; do not reimplement the Realtime client in v1.
+          Mint with <code>forms.voice.start</code>. Capture runs on the hosted fill embed.
+          Native apps load a WebView of the voice bridge. See
+          <a href="guides/voice.html">Fill with voice</a>.
         </p>
+
+        <div class="pager">
+          <a href="start.html"><span>Previous</span>Authentication</a>
+          <a href="guides/render-a-form.html"><span>Next</span>Render a form</a>
+        </div>
       </main>
     </div>
     <script src="assets/nav.js"></script>

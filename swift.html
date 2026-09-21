@@ -3,17 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Swift — Comprehendly docs</title>
+    <title>Swift SDK — Comprehendly docs</title>
     <link rel="stylesheet" href="assets/docs.css" />
   </head>
   <body>
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>Swift</h1>
-        <p>
-          Repo: <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-swift">comprehendly-sdk-swift</a>.
-          Product: <code>ComprehendlyForms</code> (iOS 16+, macOS 13+).
+        <h1>Swift SDK</h1>
+        <p class="lead">
+          Package:
+          <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-swift">comprehendly-sdk-swift</a>.
+          Product <code>ComprehendlyForms</code> (iOS 16+, macOS 13+). Voice UI is iOS WKWebView.
         </p>
 
         <h2>Add the package</h2>
@@ -21,6 +22,10 @@
           <li>Clone the repo (or add the GitHub URL once you depend on a tagged release).</li>
           <li>Xcode → Package Dependencies → add local package → library <code>ComprehendlyForms</code>.</li>
         </ol>
+        <p>
+          Open <code>Examples/Demo/ComprehendlyDemo.xcodeproj</code>, pick a simulator, Run.
+          Allowlist <code>https://ios-demo.comprehendly.nz</code> on the publishable key.
+        </p>
 
         <h2>Client</h2>
         <pre><code>import ComprehendlyForms
@@ -29,24 +34,32 @@ let client = ComprehendlyClient(publishableKey: "pk_test_…")
 // default Origin: https://ios-demo.comprehendly.nz — must be on the key allowlist
 try await client.exchange()
 let page = try await client.pageGet(pageId)
-ComprehendlyFormView(store: client.store)</code></pre>
+ComprehendlyFormView(store: client.store)
+
+let saved = try await client.submissionsSave(
+  pageId: pageId,
+  fieldValues: client.store.values
+)</code></pre>
         <p>
           <code>catalogList()</code> returns gateway JSON. <code>pageGet</code> parses elements into
           <code>ComprehendlyPage</code> and loads the store.
         </p>
 
-        <h2>Demo app</h2>
-        <p>
-          There is no checked-in <code>.xcodeproj</code>. Create an iOS App target, add the package,
-          replace the app entry with <code>Examples/Demo/ComprehendlyDemoApp.swift</code>.
-        </p>
+        <h2>Voice</h2>
+        <pre><code>let url = try client.voiceBridgeURL(pageId: pageId, mode: "assistant")
+VoiceBridgeView(url: url, store: client.store)</code></pre>
+        <p>Add <code>NSMicrophoneUsageDescription</code> to the host Info.plist. Do not implement Realtime in this package.</p>
 
         <h2>Origin header</h2>
         <p>
           URLSession does not send <code>Origin</code> unless you set it.
-          <code>ComprehendlyClient.origin</code> defaults to <code>https://ios-demo.comprehendly.nz</code>.
-          Change it if you allowlist a different origin, and keep the header and the key in sync.
+          Keep <code>ComprehendlyClient.origin</code> in sync with the key allowlist.
         </p>
+
+        <div class="pager">
+          <a href="javascript.html"><span>Previous</span>JavaScript SDK</a>
+          <a href="reference.html"><span>Next</span>API reference</a>
+        </div>
       </main>
     </div>
     <script src="assets/nav.js"></script>
