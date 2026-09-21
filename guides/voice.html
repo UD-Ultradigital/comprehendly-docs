@@ -46,10 +46,11 @@ VoiceBridgeView(url: url, store: client.store)</code></pre>
           <code>https://ios-demo.comprehendly.nz</code>); the token is then passed into the bridge.
         </p>
         <p class="note">
-          Embed postMessage today is <code>stepcare:embed_ready</code>,
-          <code>stepcare:submission_saved</code>, and resize. If the payload includes
-          <code>field_values</code>, FieldStore hydrates immediately. Otherwise values land on save
-          (or when you call <code>submissions.get</code>).
+          The fill embed posts <code>stepcare:fields_updated</code> with
+          <code>field_values</code> as the user or voice writes, and
+          <code>stepcare:submission_saved</code> (including <code>fieldValues</code>) on save.
+          FieldStore hydrates either camelCase or snake_case. Requires Forms SDK / embed
+          deploy that includes this message (forms.js v1.3).
         </p>
 
         <h2>Mint without the widget</h2>
