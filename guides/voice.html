@@ -37,11 +37,12 @@ mountVoiceBridge('#voice', {
   store: client.store
 })
 
-const voiceFrame = document.querySelector('#voice iframe')
-const voiceOrigin = new URL(voiceFrame?.src ?? '../voice-bridge.html', window.location.href).origin
-
 window.addEventListener('message', (event) => {
-  if (event.source !== voiceFrame?.contentWindow) return
+  const voiceFrame = document.querySelector('#voice iframe')
+  if (!voiceFrame) return
+
+  const voiceOrigin = new URL(voiceFrame.src ?? '../voice-bridge.html', window.location.href).origin
+  if (event.source !== voiceFrame.contentWindow) return
   if (event.origin !== voiceOrigin) return
   if (event.data?.type === 'stepcare:fields_updated') {
     console.log('Field values updated from voice', event.data.field_values)
