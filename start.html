@@ -41,8 +41,8 @@
 
         <h2>2. Load a published page</h2>
         <p>
-          Use <code>forms.catalog.list</code> if you need to discover a page id, then call
-          <code>forms.page.get</code>. Loading a page gives you the current element graph and refreshes the
+          Call gateway operation <code>forms.catalog.list</code> (or SDK helper <code>catalog.list()</code>) if you need to discover a page id, then call
+          gateway operation <code>forms.page.get</code> (or SDK helper <code>page.get(pageId)</code>). Loading a page gives you the current element graph and refreshes the
           <code>element.id</code> → <code>field_name</code> mapping.
         </p>
 

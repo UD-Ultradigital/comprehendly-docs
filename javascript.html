@@ -38,13 +38,24 @@ const client = new Comprehendly({
 let tokenExpiresAt = 0
 
 async function ensureExchangeToken() {
-  if (Date.now() < tokenExpiresAt - 60_000) return
+  if (Date.now() < tokenExpiresAt - 60_000) return false
   const session = await client.exchange()
   tokenExpiresAt = Date.now() + (session.expires_in * 1000)
+  return true
+}
+
+function mountVoice() {
+  mountVoiceBridge('#voice', {
+    token: client.accessToken,
+    pageId,
+    mode: 'assistant',
+    store: client.store
+  })
 }
 
 await ensureExchangeToken()
 await client.page.get(pageId)
+mountVoice()
 
 client.store.bind({ elementId: 'el-first-name' }, (value) => {
   document.querySelector('#first-name').value = value ?? ''
@@ -58,15 +69,9 @@ document.querySelector('#first-name').addEventListener('input', (event) => {
   })
 })
 
-mountVoiceBridge('#voice', {
-  token: client.accessToken,
-  pageId,
-  mode: 'assistant',
-  store: client.store
-})
-
 document.querySelector('#save').addEventListener('click', async () => {
-  await ensureExchangeToken()
+  const refreshed = await ensureExchangeToken()
+  if (refreshed) mountVoice()
 
   const submission = await client.submissions.save({
     pageId,

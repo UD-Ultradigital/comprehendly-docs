@@ -43,7 +43,6 @@ for (const field of client.store.fields()) {
   label.textContent = field.label || field.fieldName
 
   const input = document.createElement('input')
-  input.value = client.store.get(field.fieldName) ?? ''
   input.addEventListener('input', () => {
     client.store.set({
       fieldName: field.fieldName,

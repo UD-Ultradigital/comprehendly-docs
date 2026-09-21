@@ -27,15 +27,27 @@
         <pre><code>import { Comprehendly, mountVoiceBridge } from '../src/index.js'
 
 const client = new Comprehendly({ publishableKey: 'pk_test_…' })
-await client.exchange()
-await client.page.get('00000000-0000-0000-0000-000000000000')
+let tokenExpiresAt = 0
 
-mountVoiceBridge('#voice', {
-  token: client.accessToken,
-  pageId: '00000000-0000-0000-0000-000000000000',
-  mode: 'assistant',
-  store: client.store
-})
+async function ensureExchangeToken() {
+  if (Date.now() < tokenExpiresAt - 60_000) return false
+  const session = await client.exchange()
+  tokenExpiresAt = Date.now() + (session.expires_in * 1000)
+  return true
+}
+
+function mountVoice() {
+  mountVoiceBridge('#voice', {
+    token: client.accessToken,
+    pageId: '00000000-0000-0000-0000-000000000000',
+    mode: 'assistant',
+    store: client.store
+  })
+}
+
+await ensureExchangeToken()
+await client.page.get('00000000-0000-0000-0000-000000000000')
+mountVoice()
 
 window.addEventListener('message', (event) => {
   const voiceFrame = document.querySelector('#voice iframe')
@@ -62,6 +74,8 @@ let voiceURL = try client.voiceBridgeURL(
 )
 
 VoiceBridgeView(url: voiceURL, store: client.store)</code></pre>
+
+        <p class="note">If <code>ensureExchangeToken()</code> refreshes the short-lived token later, call <code>mountVoice()</code> again so the bridge reloads with the new token.</p>
 
         <h2>Limits</h2>
         <ul>
