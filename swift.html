@@ -41,14 +41,22 @@ import SwiftUI
 let pageId = "00000000-0000-0000-0000-000000000000"
 let client = ComprehendlyClient(publishableKey: "pk_test_…")
 var firstName = ""
+var tokenExpiresAt = Date.distantPast
 
-try await client.exchange()
+func ensureExchangeToken() async throws {
+  if Date() < tokenExpiresAt.addingTimeInterval(-60) { return }
+  let session = try await client.exchange()
+  tokenExpiresAt = Date().addingTimeInterval(TimeInterval(session.expiresIn))
+}
+
+try await ensureExchangeToken()
 _ = try await client.pageGet(pageId)
 
 try client.store.bind(elementId: "el-first-name") { value in
   firstName = value as? String ?? ""
 }
 
+try await ensureExchangeToken()
 let submission = try await client.submissionsSave(
   pageId: pageId,
   fieldValues: client.store.values()
@@ -60,7 +68,7 @@ print(submission.id)</code></pre>
         <p>
           Keep voice on the hosted WebView bridge. Bind host controls with <code>element.id</code>, then let
           <code>client.store.values()</code> produce the submission payload keyed by <code>field_name</code>.
-          Render <code>VoiceBridgeView(url: try client.voiceBridgeURL(pageId: pageId, mode: "assistant"), store: client.store)</code> in your SwiftUI hierarchy, and re-exchange only when the short-lived token has expired before save.
+          Render <code>VoiceBridgeView(url: try client.voiceBridgeURL(pageId: pageId, mode: "assistant"), store: client.store)</code> in your SwiftUI hierarchy, and recreate that bridge URL whenever you renew the short-lived token.
         </p>
 
         <h2>Demo app</h2>

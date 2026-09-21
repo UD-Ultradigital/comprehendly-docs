@@ -37,15 +37,12 @@ mountVoiceBridge('#voice', {
   store: client.store
 })
 
-const allowedOrigins = new Set([
-  'https://docs.comprehendly.nz',
-  'https://sdk.comprehendly.nz'
-])
 const voiceFrame = document.querySelector('#voice iframe')
+const voiceOrigin = new URL(voiceFrame?.src ?? '../voice-bridge.html', window.location.href).origin
 
 window.addEventListener('message', (event) => {
   if (event.source !== voiceFrame?.contentWindow) return
-  if (!allowedOrigins.has(event.origin)) return
+  if (event.origin !== voiceOrigin) return
   if (event.data?.type === 'stepcare:fields_updated') {
     console.log('Field values updated from voice', event.data.field_values)
   }

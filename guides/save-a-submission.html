@@ -27,10 +27,19 @@
         <pre><code>import { Comprehendly } from '../src/index.js'
 
 const client = new Comprehendly({ publishableKey: 'pk_test_…' })
-await client.exchange()
+let tokenExpiresAt = 0
+
+async function ensureExchangeToken() {
+  if (Date.now() < tokenExpiresAt - 60_000) return
+  const session = await client.exchange()
+  tokenExpiresAt = Date.now() + (session.expires_in * 1000)
+}
+
+await ensureExchangeToken()
 await client.page.get('00000000-0000-0000-0000-000000000000')
 
 const fieldValues = client.store.values()
+await ensureExchangeToken()
 
 const submission = await client.submissions.save({
   pageId: '00000000-0000-0000-0000-000000000000',
@@ -43,9 +52,18 @@ console.log('Saved submission', submission.id)</code></pre>
         <pre><code>import ComprehendlyForms
 
 let client = ComprehendlyClient(publishableKey: "pk_test_…")
-try await client.exchange()
+var tokenExpiresAt = Date.distantPast
+
+func ensureExchangeToken() async throws {
+  if Date() < tokenExpiresAt.addingTimeInterval(-60) { return }
+  let session = try await client.exchange()
+  tokenExpiresAt = Date().addingTimeInterval(TimeInterval(session.expiresIn))
+}
+
+try await ensureExchangeToken()
 _ = try await client.pageGet("00000000-0000-0000-0000-000000000000")
 
+try await ensureExchangeToken()
 let submission = try await client.submissionsSave(
   pageId: "00000000-0000-0000-0000-000000000000",
   fieldValues: client.store.values()

@@ -35,8 +35,15 @@ const pageId = '00000000-0000-0000-0000-000000000000'
 const client = new Comprehendly({
   publishableKey: 'pk_test_…'
 })
+let tokenExpiresAt = 0
 
-await client.exchange()
+async function ensureExchangeToken() {
+  if (Date.now() < tokenExpiresAt - 60_000) return
+  const session = await client.exchange()
+  tokenExpiresAt = Date.now() + (session.expires_in * 1000)
+}
+
+await ensureExchangeToken()
 await client.page.get(pageId)
 
 client.store.bind({ elementId: 'el-first-name' }, (value) => {
@@ -59,6 +66,8 @@ mountVoiceBridge('#voice', {
 })
 
 document.querySelector('#save').addEventListener('click', async () => {
+  await ensureExchangeToken()
+
   const submission = await client.submissions.save({
     pageId,
     fieldValues: client.store.values()
