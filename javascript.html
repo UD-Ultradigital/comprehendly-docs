@@ -59,6 +59,8 @@ mountVoiceBridge('#voice', {
 })
 
 document.querySelector('#save').addEventListener('click', async () => {
+  await client.exchange() // refresh the short-lived token before save if the session has been open a while
+
   const submission = await client.submissions.save({
     pageId,
     fieldValues: client.store.values()

@@ -49,8 +49,7 @@ try client.store.bind(elementId: "el-first-name") { value in
   firstName = value as? String ?? ""
 }
 
-let voiceURL = try client.voiceBridgeURL(pageId: pageId, mode: "assistant")
-let voiceView = VoiceBridgeView(url: voiceURL, store: client.store)
+try await client.exchange()
 
 let submission = try await client.submissionsSave(
   pageId: pageId,
@@ -63,6 +62,7 @@ print(submission.id)</code></pre>
         <p>
           Keep voice on the hosted WebView bridge. Bind host controls with <code>element.id</code>, then let
           <code>client.store.values()</code> produce the submission payload keyed by <code>field_name</code>.
+          Render <code>VoiceBridgeView(url: voiceURL, store: client.store)</code> in your SwiftUI hierarchy once you have the bridge URL.
         </p>
 
         <h2>Demo app</h2>
