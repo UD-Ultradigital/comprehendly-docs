@@ -3,102 +3,68 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Voice — Comprehendly docs</title>
+    <title>Fill with voice — Comprehendly docs</title>
     <link rel="stylesheet" href="../assets/docs.css" />
   </head>
   <body>
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>Voice: assistant and silent</h1>
+        <h1>Fill with voice</h1>
         <p class="lead">
-          Use case: fill the same FieldStore from a microphone. Two modes, one mint operation.
+          <strong>Use case:</strong> you want microphone capture to write into the same FieldStore used by your
+          generated or bound form surface.
         </p>
 
-        <h2>Hosted WebView / iframe bridge</h2>
-        <p>
-          Native and JS hosts do not implement Realtime. They load
-          <a href="/voice-bridge.html"><code>/voice-bridge.html</code></a>
-          with a short-lived <code>integration_token</code>. That page iframes
-          <code>{sdkOrigin}/embed/forms/fill</code>, which is the capture engine.
-        </p>
-        <pre><code>https://docs.comprehendly.nz/voice-bridge.html
-  ?integration_token=scist_…
-  &amp;page_id={uuid}
-  &amp;fill_mode=assistant   # or silent
-  &amp;base_url=https://sdk.comprehendly.nz</code></pre>
-        <p>JavaScript:</p>
-        <pre><code>import { mountVoiceBridge } from '@comprehendly/forms'
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>A published page already loaded into the client store.</li>
+          <li>A working exchange token with the same allowlisted origin as the host app.</li>
+          <li>Permission to capture microphone input in the browser or native WebView.</li>
+        </ul>
+
+        <h2>JavaScript</h2>
+        <pre><code>import { Comprehendly, mountVoiceBridge } from './src/index.js'
+
+const client = new Comprehendly({ publishableKey: 'pk_test_…' })
+await client.exchange()
+await client.page.get('00000000-0000-0000-0000-000000000000')
 
 mountVoiceBridge('#voice', {
   token: client.accessToken,
-  pageId,
+  pageId: '00000000-0000-0000-0000-000000000000',
   mode: 'assistant',
   store: client.store
+})
+
+window.addEventListener('message', (event) => {
+  if (event.data?.type === 'stepcare:fields_updated') {
+    console.log('Field values updated from voice', event.data.field_values)
+  }
 })</code></pre>
-        <p>Swift (iOS):</p>
-        <pre><code>let url = try client.voiceBridgeURL(pageId: pageId, mode: "assistant")
-VoiceBridgeView(url: url, store: client.store)</code></pre>
-        <p>
-          The WebView must grant microphone capture. Add
-          <code>NSMicrophoneUsageDescription</code> to the host Info.plist.
-          Exchange still uses your allowlisted native origin (e.g.
-          <code>https://ios-demo.comprehendly.nz</code>); the token is then passed into the bridge.
-        </p>
-        <p class="note">
-          The fill embed posts <code>stepcare:fields_updated</code> with
-          <code>field_values</code> as the user or voice writes, and
-          <code>stepcare:submission_saved</code> (including <code>fieldValues</code>) on save.
-          FieldStore hydrates either camelCase or snake_case. Requires Forms SDK / embed
-          deploy that includes this message (forms.js v1.3).
-        </p>
 
-        <h2>Mint without the widget</h2>
-        <p>Gateway <code>forms.voice.start</code> (SDK <code>session.start</code>).</p>
-        <pre><code>await client.session.start({
-  pageId,
-  mode: 'assistant', // or 'silent'
-  uiConsentGranted: true,
-  assistantContext: { subject_name: 'Alex', purpose: 'Check-in' }
-})</code></pre>
-        <p>Response <code>data</code> includes <code>client_secret</code>, <code>session_mode</code>, <code>form_voice_session_id</code>, <code>expires_at</code>.</p>
-        <p>
-          Connect that secret to the hosted Realtime client. In the browser, the iframe fill UI
-          and <code>forms.js</code> already do this. Native: load a WebView pointed at the SDK origin;
-          do not implement gpt-realtime yourself in v1.
-        </p>
+        <h2>Swift</h2>
+        <pre><code>import ComprehendlyForms
 
-        <h2>Modes</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>mode</th>
-              <th>When to use</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>silent</code></td>
-              <td>Passive listening / dictation. No spoken agent.</td>
-            </tr>
-            <tr>
-              <td><code>assistant</code></td>
-              <td>Spoken walkthrough of the published page (same script family as phone fill).</td>
-            </tr>
-          </tbody>
-        </table>
+let client = ComprehendlyClient(publishableKey: "pk_test_…")
+try await client.exchange()
+_ = try await client.pageGet("00000000-0000-0000-0000-000000000000")
 
-        <h2>Consent</h2>
-        <p>
-          If your UI already collected recording consent, pass <code>ui_consent_granted: true</code> (SDK default).
-          If not, pass <code>false</code> and do not start audio until the user accepts.
-        </p>
+let voiceURL = try client.voiceBridgeURL(
+  pageId: "00000000-0000-0000-0000-000000000000",
+  mode: "assistant"
+)
 
-        <h2>Status in these SDKs</h2>
+VoiceBridgeView(url: voiceURL, store: client.store)</code></pre>
+
+        <h2>Limits</h2>
         <ul>
-          <li>JS: <code>mountVoiceBridge</code> + demo Assistant/Silent buttons.</li>
-          <li>Swift: <code>VoiceBridgeView</code> WKWebView; demo sheet.</li>
+          <li>Do not reimplement the Realtime client in v1. Keep voice on the hosted <code>voice-bridge.html</code> / forms fill embed.</li>
+          <li>Forms embed v1.3 posts <code>stepcare:fields_updated</code>; use that event to hydrate host UI if needed.</li>
+          <li>Voice updates the shared store, but save still happens through <code>forms.submissions.save</code> with <code>field_name</code>-keyed values.</li>
         </ul>
+
+        <p class="muted">Next step: <a href="save-a-submission.html">Save a submission</a> after voice has updated the store.</p>
       </main>
     </div>
     <script src="../assets/nav.js"></script>

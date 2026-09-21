@@ -12,31 +12,77 @@
       <main>
         <h1>JavaScript</h1>
         <p>
-          Repo: <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-js">comprehendly-sdk-js</a>.
-          Entry: <code>src/index.js</code> (<code>export class Comprehendly</code>).
+          Repo: <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-js">github.com/UD-Ultradigital/comprehendly-sdk-js</a>.
+          The client exposes <code>Comprehendly</code>, a shared <code>store</code>, and helpers for voice bridge mounting.
         </p>
 
         <h2>Constructor</h2>
         <pre><code>new Comprehendly({
-  publishableKey,      // required
-  origin,              // set Origin header only in non-browser runtimes
-  functionsUrl,        // default production Functions URL
-  anonKey              // default platform anon key
+  publishableKey,   // required
+  origin,           // only for non-browser runtimes
+  functionsUrl,     // defaults to production Functions URL
+  anonKey           // defaults to the platform anon key
 })</code></pre>
-        <p><code>client.store</code> is created with the client. <code>page.get</code> calls <code>store.loadPage</code>.</p>
+        <p>
+          Browsers should not override <code>origin</code>. For the demo flow, allowlist
+          <code>http://localhost:4173</code> on the publishable key.
+        </p>
+
+        <h2>Complete example</h2>
+        <pre><code>import { Comprehendly, mountVoiceBridge } from './src/index.js'
+
+const pageId = '00000000-0000-0000-0000-000000000000'
+const client = new Comprehendly({
+  publishableKey: 'pk_test_…'
+})
+
+await client.exchange()
+await client.page.get(pageId)
+
+client.store.bind({ elementId: 'el-first-name' }, (value) => {
+  document.querySelector('#first-name').value = value ?? ''
+})
+
+document.querySelector('#first-name').addEventListener('input', (event) => {
+  client.store.set({
+    elementId: 'el-first-name',
+    value: event.target.value,
+    source: 'bind'
+  })
+})
+
+mountVoiceBridge('#voice', {
+  token: client.accessToken,
+  pageId,
+  mode: 'assistant',
+  store: client.store
+})
+
+document.querySelector('#save').addEventListener('click', async () => {
+  const submission = await client.submissions.save({
+    pageId,
+    fieldValues: client.store.values()
+  })
+
+  console.log('Saved submission', submission.id)
+})</code></pre>
+
+        <h2>Generated vs bound surfaces</h2>
+        <p>
+          Use generated UI when you need a quick linear form. Use bind when you already own the DOM.
+          Do not draw both for the same field. Bind through <code>element.id</code>; save through the store's
+          <code>field_name</code>-keyed values.
+        </p>
 
         <h2>Demo</h2>
         <pre><code>git clone https://github.com/UD-Ultradigital/comprehendly-sdk-js.git
 cd comprehendly-sdk-js
 cp demo/env.example.js demo/env.js
-# publishableKey, optional pageId
+# set publishableKey and optional pageId
 python3 -m http.server 4173 --directory demo</code></pre>
-        <p>Allowlist <code>http://localhost:4173</code>. The page shows generated controls and host-bound inputs on the same store.</p>
-
-        <h2>CDN widget</h2>
         <p>
-          <a href="https://sdk.comprehendly.nz/embed/v1/forms.js"><code>https://sdk.comprehendly.nz/embed/v1/forms.js</code></a>
-          mounts iframes (<code>StepCareForms.init</code>). Use it when you want the hosted fill UI, not FieldStore.
+          The hosted voice bridge stays on <code>/voice-bridge.html</code>, while the demo origin remains
+          <code>http://localhost:4173</code> for exchange and gateway calls.
         </p>
       </main>
     </div>

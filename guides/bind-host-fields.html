@@ -12,42 +12,61 @@
       <main>
         <h1>Bind existing fields</h1>
         <p class="lead">
-          Use case: the host already has a form (SwiftUI, DOM, or another toolkit).
-          Keep those widgets. Map each one to a Comprehendly element so voice and save use the same values.
+          <strong>Use case:</strong> your app already owns the UI and you want Comprehendly values to stay in sync
+          with your existing DOM or native controls.
         </p>
 
-        <h2>Mapping</h2>
-        <p>Prefer <code>element.id</code> from <code>forms.page.get</code>. Persist that id in your app (accessibility identifier, <code>data-element-id</code>, etc.).</p>
-        <pre><code>client.store.bind({ elementId: 'el-mood' }, (value) => {
-  hostInput.value = value ?? ''
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>A published page loaded with <code>page.get</code>.</li>
+          <li>A stable place to persist each Comprehendly <code>element.id</code> alongside your host control.</li>
+          <li>An agreement that save still uses <code>field_name</code>, not labels.</li>
+        </ul>
+
+        <h2>JavaScript</h2>
+        <pre><code>import { Comprehendly } from './src/index.js'
+
+const client = new Comprehendly({ publishableKey: 'pk_test_…' })
+await client.exchange()
+await client.page.get('00000000-0000-0000-0000-000000000000')
+
+const moodInput = document.querySelector('[data-element-id="el-mood"]')
+
+client.store.bind({ elementId: 'el-mood' }, (value) => {
+  moodInput.value = value ?? ''
 })
 
-hostInput.addEventListener('input', () => {
+moodInput.addEventListener('input', () => {
   client.store.set({
     elementId: 'el-mood',
-    value: hostInput.value,
+    value: moodInput.value,
     source: 'bind'
   })
 })</code></pre>
-        <p>Swift:</p>
-        <pre><code>try client.store.bind(elementId: "el-mood") { value in
+
+        <h2>Swift</h2>
+        <pre><code>import ComprehendlyForms
+
+let client = ComprehendlyClient(publishableKey: "pk_test_…")
+var mood = ""
+
+try await client.exchange()
+_ = try await client.pageGet("00000000-0000-0000-0000-000000000000")
+
+try client.store.bind(elementId: "el-mood") { value in
   mood = value as? String ?? ""
 }
+
 try client.store.set(elementId: "el-mood", value: mood, source: "bind")</code></pre>
 
-        <h2>Partial mapping</h2>
-        <p>
-          You do not have to bind every field. Unmapped fields still receive voice patches in the store.
-          Either ignore them or show an “also captured” list from <code>store.values()</code>.
-        </p>
-
-        <h2>When bind is required</h2>
+        <h2>Limits</h2>
         <ul>
-          <li>Custom layout or CSS the generated list cannot reproduce.</li>
-          <li>Conditional sections you already implement in the host.</li>
-          <li>Controls the SDK does not render yet (rating, score, tree, signatures).</li>
+          <li>Bind with <code>element.id</code> so page refreshes can resolve the current <code>field_name</code> safely.</li>
+          <li>Do not add generated controls on top of the same host field. Use one surface per field.</li>
+          <li>Unmapped fields can still receive voice updates in the store. Render them separately or ignore them intentionally.</li>
         </ul>
-        <p class="note">Do not draw a second Comprehendly form on top of host controls. One widget per field.</p>
+
+        <p class="muted">Next step: <a href="voice.html">Fill with voice</a> if you want microphone capture to update the same bound store.</p>
       </main>
     </div>
     <script src="../assets/nav.js"></script>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Authentication — Comprehendly docs</title>
+    <link rel="stylesheet" href="assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Authentication</h1>
+        <p class="lead">
+          Comprehendly client SDKs use a publishable key plus an exchange step to mint a short-lived
+          integration token. They do not send a user JWT to the Forms gateway.
+        </p>
+
+        <h2>Requirements</h2>
+        <ol>
+          <li>Create a publishable key in the Comprehendly app.</li>
+          <li>Allowlist the exact client origin on that key.</li>
+          <li>Request the scopes your flow needs at exchange time.</li>
+        </ol>
+
+        <h2>Origin allowlist</h2>
+        <p>
+          The allowlist entry must match the runtime <code>Origin</code> exactly: scheme, host, and port only.
+          Common values are <code>http://localhost:4173</code> for the JavaScript demo and
+          <code>https://ios-demo.comprehendly.nz</code> for the default Swift client.
+        </p>
+        <p class="note">
+          Browsers set <code>Origin</code> automatically. Native clients must set it explicitly and keep the
+          header value in sync with the publishable key allowlist.
+        </p>
+
+        <h2>Exchange request</h2>
+        <p><code>POST https://api.stepcare.app/functions/v1/integration_exchange</code></p>
+        <pre><code>{
+  "key": "pk_test_…",
+  "audience": "stepcare-embed",
+  "requested_scopes": [
+    "forms.schemas:read",
+    "forms.submissions:read",
+    "forms.submissions:write"
+  ]
+}</code></pre>
+        <p>
+          Send the platform anon key in <code>apikey</code> and <code>Authorization: Bearer</code> headers.
+          A successful exchange returns <code>access_token</code>, <code>expires_in</code>, <code>tenant_id</code>, and granted <code>scopes</code>.
+        </p>
+
+        <h2>Gateway request</h2>
+        <p><code>POST https://api.stepcare.app/functions/v1/integration_gateway</code></p>
+        <pre><code>{
+  "access_token": "scist_…",
+  "operation": "forms.page.get",
+  "params": {
+    "page_id": "00000000-0000-0000-0000-000000000000"
+  }
+}</code></pre>
+        <p>Gateway success responses use <code>{ "data": ..., "request_id": "uuid" }</code>. SDK helpers unwrap <code>data</code>.</p>
+
+        <h2>Scope checklist</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Scope</th>
+              <th>Needed for</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>forms.schemas:read</code></td>
+              <td>Catalog, page load, and field metadata used by generated or bound surfaces.</td>
+            </tr>
+            <tr>
+              <td><code>forms.submissions:read</code></td>
+              <td>Reading previously saved submissions.</td>
+            </tr>
+            <tr>
+              <td><code>forms.submissions:write</code></td>
+              <td>Saving a submission from current field values.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="muted">Next: continue with the <a href="start.html">Quickstart</a> or jump into the <a href="guides/render-a-form.html">render guide</a>.</p>
+      </main>
+    </div>
+    <script src="assets/nav.js"></script>
+  </body>
+</html>

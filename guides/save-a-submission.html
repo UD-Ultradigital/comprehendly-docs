@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Save a submission — Comprehendly docs</title>
+    <link rel="stylesheet" href="../assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Save a submission</h1>
+        <p class="lead">
+          <strong>Use case:</strong> your generated, bound, or voice-assisted flow has collected values and you now
+          want to persist them as a submission.
+        </p>
+
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>A page already loaded with <code>page.get</code>.</li>
+          <li>A shared FieldStore containing current values.</li>
+          <li><code>forms.submissions:write</code> on the exchanged token.</li>
+        </ul>
+
+        <h2>JavaScript</h2>
+        <pre><code>import { Comprehendly } from './src/index.js'
+
+const client = new Comprehendly({ publishableKey: 'pk_test_…' })
+await client.exchange()
+await client.page.get('00000000-0000-0000-0000-000000000000')
+
+const fieldValues = client.store.values()
+
+const submission = await client.submissions.save({
+  pageId: '00000000-0000-0000-0000-000000000000',
+  fieldValues
+})
+
+console.log('Saved submission', submission.id)</code></pre>
+
+        <h2>Swift</h2>
+        <pre><code>import ComprehendlyForms
+
+let client = ComprehendlyClient(publishableKey: "pk_test_…")
+try await client.exchange()
+_ = try await client.pageGet("00000000-0000-0000-0000-000000000000")
+
+let submission = try await client.submissionsSave(
+  pageId: "00000000-0000-0000-0000-000000000000",
+  fieldValues: client.store.values()
+)
+
+print("Saved submission \(submission.id)")</code></pre>
+
+        <h2>Limits</h2>
+        <ul>
+          <li>Save payloads are keyed by <code>field_name</code>. Never transform them back to labels.</li>
+          <li>If you bind host widgets, resolve through <code>element.id</code> during editing and let the store emit the correct <code>field_name</code> payload.</li>
+          <li>Voice capture can update the same store first, but saving is still an explicit gateway call unless the hosted flow saves on your behalf.</li>
+        </ul>
+
+        <p class="muted">Next step: review the <a href="../reference.html">API reference</a> or <a href="../errors.html">Errors</a> for gateway envelopes and failure modes.</p>
+      </main>
+    </div>
+    <script src="../assets/nav.js"></script>
+  </body>
+</html>

@@ -3,75 +3,76 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Overview — Comprehendly docs</title>
+    <title>Introduction — Comprehendly docs</title>
     <link rel="stylesheet" href="assets/docs.css" />
   </head>
   <body>
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>Comprehendly Forms SDK</h1>
+        <h1>Introduction</h1>
         <p class="lead">
-          Client libraries for the Forms integration API. Use them to list published
-          forms, load a page definition, fill fields (UI or voice), and save a submission.
+          Comprehendly Forms is a developer-facing integration for loading published form pages,
+          filling fields in a shared store, capturing voice input through the hosted bridge,
+          and saving submissions back to the platform.
         </p>
         <p>
-          apiVersion <code>1</code>. Method names are the same on every platform
-          (idiomatic casing allowed: <code>page.get</code> ≡ <code>pageGet</code>).
+          This guide covers the classic integration flow: exchange a publishable key,
+          load a page definition, choose a surface, capture values, and save a submission.
         </p>
 
-        <h2>What you integrate with</h2>
+        <h2>What stays stable</h2>
         <table>
           <thead>
             <tr>
-              <th>Piece</th>
-              <th>Role</th>
+              <th>Topic</th>
+              <th>Rule</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Publishable key (<code>pk_test_</code> / <code>pk_live_</code>)</td>
-              <td>Tenant credential. Exchanged for a short-lived token. Not a user JWT.</td>
+              <td>Field identity</td>
+              <td>Bind host widgets with <code>element.id</code>. Voice and save use <code>field_name</code>. Never bind or save by label.</td>
             </tr>
             <tr>
-              <td><code>integration_exchange</code></td>
-              <td>Key → <code>access_token</code>. Requires an allowlisted <code>Origin</code>.</td>
+              <td>Surfaces</td>
+              <td>Choose one surface per field: generated <code>FormView</code> or host-side bind. Do not overlay Comprehendly chrome on top of host controls.</td>
             </tr>
             <tr>
-              <td><code>integration_gateway</code></td>
-              <td>RPC: catalog, page, voice, submissions, prepared sessions.</td>
+              <td>Voice</td>
+              <td>Voice stays on the hosted <code>voice-bridge.html</code> / forms fill embed. Forms embed v1.3 posts <code>stepcare:fields_updated</code>.</td>
             </tr>
             <tr>
-              <td>FieldStore</td>
-              <td>In-memory field values for one fill. Voice and UI both write here.</td>
+              <td>Origin allowlist</td>
+              <td>Exchange requires an allowlisted <code>Origin</code>. Common defaults are <code>http://localhost:4173</code> for the JS demo and <code>https://ios-demo.comprehendly.nz</code> for Swift.</td>
             </tr>
           </tbody>
         </table>
 
-        <h2>Choose a path</h2>
+        <h2>Choose an integration path</h2>
         <table>
           <thead>
             <tr>
-              <th>If you…</th>
-              <th>Then</th>
+              <th>Goal</th>
+              <th>Guide</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Need a form UI and do not already have widgets</td>
-              <td><a href="guides/render-a-form.html">Render a form from a page</a></td>
+              <td>Render SDK-managed controls from a published page</td>
+              <td><a href="guides/render-a-form.html">Render a form</a></td>
             </tr>
             <tr>
-              <td>Already have native or DOM fields</td>
+              <td>Keep your existing DOM or native widgets</td>
               <td><a href="guides/bind-host-fields.html">Bind existing fields</a></td>
             </tr>
             <tr>
-              <td>Want spoken walkthrough or mic-only capture</td>
-              <td><a href="guides/voice.html">Voice: assistant and silent</a></td>
+              <td>Fill the same store from a microphone</td>
+              <td><a href="guides/voice.html">Fill with voice</a></td>
             </tr>
             <tr>
-              <td>Want the hosted iframe / script tag</td>
-              <td>CDN <a href="https://sdk.comprehendly.nz/embed/v1/forms.js"><code>forms.js</code></a> (widget; not the FieldStore client)</td>
+              <td>Persist field values as a submission</td>
+              <td><a href="guides/save-a-submission.html">Save a submission</a></td>
             </tr>
           </tbody>
         </table>
@@ -80,22 +81,23 @@
         <table>
           <thead>
             <tr>
-              <th>Package</th>
-              <th>Repo</th>
+              <th>SDK</th>
+              <th>Repository</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>JavaScript</td>
-              <td><a href="https://github.com/UD-Ultradigital/comprehendly-sdk-js">UD-Ultradigital/comprehendly-sdk-js</a></td>
+              <td><a href="https://github.com/UD-Ultradigital/comprehendly-sdk-js">github.com/UD-Ultradigital/comprehendly-sdk-js</a></td>
             </tr>
             <tr>
               <td>Swift</td>
-              <td><a href="https://github.com/UD-Ultradigital/comprehendly-sdk-swift">UD-Ultradigital/comprehendly-sdk-swift</a></td>
+              <td><a href="https://github.com/UD-Ultradigital/comprehendly-sdk-swift">github.com/UD-Ultradigital/comprehendly-sdk-swift</a></td>
             </tr>
           </tbody>
         </table>
-        <p class="muted">Start with <a href="start.html">Install and authenticate</a>.</p>
+
+        <p class="muted">Next: follow the <a href="start.html">Quickstart</a> for the minimum path from key exchange to a saved submission.</p>
       </main>
     </div>
     <script src="assets/nav.js"></script>

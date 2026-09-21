@@ -12,40 +12,63 @@
       <main>
         <h1>Swift</h1>
         <p>
-          Repo: <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-swift">comprehendly-sdk-swift</a>.
-          Product: <code>ComprehendlyForms</code> (iOS 16+, macOS 13+).
+          Repo: <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-swift">github.com/UD-Ultradigital/comprehendly-sdk-swift</a>.
+          Product: <code>ComprehendlyForms</code> for iOS 16+ and macOS 13+.
         </p>
 
         <h2>Add the package</h2>
         <ol>
-          <li>Clone the repo (or add the GitHub URL once you depend on a tagged release).</li>
-          <li>Xcode → Package Dependencies → add local package → library <code>ComprehendlyForms</code>.</li>
+          <li>Clone the repository locally.</li>
+          <li>Xcode → Package Dependencies → add the local package.</li>
+          <li>Link the <code>ComprehendlyForms</code> library to your app target.</li>
         </ol>
 
-        <h2>Client</h2>
+        <h2>Client setup</h2>
         <pre><code>import ComprehendlyForms
 
 let client = ComprehendlyClient(publishableKey: "pk_test_…")
-// default Origin: https://ios-demo.comprehendly.nz — must be on the key allowlist
-try await client.exchange()
-let page = try await client.pageGet(pageId)
-ComprehendlyFormView(store: client.store)</code></pre>
+client.origin = "https://ios-demo.comprehendly.nz"
+try await client.exchange()</code></pre>
         <p>
-          <code>catalogList()</code> returns gateway JSON. <code>pageGet</code> parses elements into
-          <code>ComprehendlyPage</code> and loads the store.
+          <code>https://ios-demo.comprehendly.nz</code> is the default Swift origin. Keep it allowlisted on the
+          publishable key or replace both the client origin and the allowlist entry together.
+        </p>
+
+        <h2>Complete example</h2>
+        <pre><code>import ComprehendlyForms
+import SwiftUI
+
+let pageId = "00000000-0000-0000-0000-000000000000"
+let client = ComprehendlyClient(publishableKey: "pk_test_…")
+var firstName = ""
+
+try await client.exchange()
+_ = try await client.pageGet(pageId)
+
+try client.store.bind(elementId: "el-first-name") { value in
+  firstName = value as? String ?? ""
+}
+
+let voiceURL = try client.voiceBridgeURL(pageId: pageId, mode: "assistant")
+let voiceView = VoiceBridgeView(url: voiceURL, store: client.store)
+
+let submission = try await client.submissionsSave(
+  pageId: pageId,
+  fieldValues: client.store.values()
+)
+
+print(submission.id)</code></pre>
+
+        <h2>Voice and save rules</h2>
+        <p>
+          Keep voice on the hosted WebView bridge. Bind host controls with <code>element.id</code>, then let
+          <code>client.store.values()</code> produce the submission payload keyed by <code>field_name</code>.
         </p>
 
         <h2>Demo app</h2>
         <p>
-          There is no checked-in <code>.xcodeproj</code>. Create an iOS App target, add the package,
-          replace the app entry with <code>Examples/Demo/ComprehendlyDemoApp.swift</code>.
-        </p>
-
-        <h2>Origin header</h2>
-        <p>
-          URLSession does not send <code>Origin</code> unless you set it.
-          <code>ComprehendlyClient.origin</code> defaults to <code>https://ios-demo.comprehendly.nz</code>.
-          Change it if you allowlist a different origin, and keep the header and the key in sync.
+          Use <code>Examples/Demo/ComprehendlyDemoApp.swift</code> from the Swift repository as the reference app wiring.
+          The docs site does not change hosted <code>voice-bridge.html</code> behaviour.
         </p>
       </main>
     </div>

@@ -11,7 +11,11 @@
       <nav id="nav"></nav>
       <main>
         <h1>Errors</h1>
-        <p>Exchange and gateway return JSON <code>error</code> plus <code>error_code</code>. SDKs throw with <code>err.code</code> (JS) or <code>ComprehendlyError.http</code> (Swift).</p>
+        <p>
+          Exchange and gateway return JSON <code>error</code> plus <code>error_code</code>. JavaScript SDK callers
+          typically inspect <code>err.code</code>; Swift callers see <code>ComprehendlyError.http</code>.
+        </p>
+
         <table>
           <thead>
             <tr>
@@ -24,31 +28,39 @@
             <tr>
               <td>400</td>
               <td><code>invalid_key</code> / <code>invalid_params</code></td>
-              <td>Key format, missing <code>page_id</code>, non-UUID page id</td>
+              <td>Bad key format, missing params, or invalid page id.</td>
             </tr>
             <tr>
               <td>401</td>
               <td><code>invalid_credentials</code> / <code>credential_expired</code></td>
-              <td>Wrong or revoked key; token expired — exchange again</td>
+              <td>Revoked key or expired access token; exchange again.</td>
             </tr>
             <tr>
               <td>403</td>
               <td><code>origin_not_allowed</code></td>
-              <td>Allowlist must match the request <code>Origin</code> exactly</td>
+              <td>The runtime <code>Origin</code> does not exactly match the publishable key allowlist.</td>
             </tr>
             <tr>
               <td>403</td>
               <td><code>scope_denied</code></td>
-              <td>Requested scopes not granted on the key</td>
+              <td>The requested or attempted operation is outside the granted scopes.</td>
             </tr>
           </tbody>
         </table>
-        <h2>Checklist for origin_not_allowed</h2>
+
+        <h2>Checklist for <code>origin_not_allowed</code></h2>
         <ul>
           <li>No trailing slash or path on the allowlist entry.</li>
-          <li>JS demo: <code>http://localhost:4173</code> not <code>127.0.0.1</code> unless that is what you allowlisted.</li>
-          <li>Swift: header <code>Origin</code> equals <code>ComprehendlyClient.origin</code> (default <code>https://ios-demo.comprehendly.nz</code>).</li>
-          <li>file:// pages have no usable origin — serve over http(s).</li>
+          <li>JavaScript demo uses <code>http://localhost:4173</code> unless you intentionally allowlisted a different host.</li>
+          <li>Swift uses header <code>Origin</code> equal to <code>https://ios-demo.comprehendly.nz</code> by default.</li>
+          <li><code>file://</code> pages do not provide a usable origin. Serve over HTTP(S).</li>
+        </ul>
+
+        <h2>Checklist for save failures</h2>
+        <ul>
+          <li>Confirm the payload values are keyed by <code>field_name</code>, not labels.</li>
+          <li>If your host UI binds by <code>element.id</code>, reload the page mapping after each <code>page.get</code>.</li>
+          <li>Verify the token includes <code>forms.submissions:write</code>.</li>
         </ul>
       </main>
     </div>

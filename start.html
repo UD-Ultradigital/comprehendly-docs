@@ -3,47 +3,33 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Install and authenticate — Comprehendly docs</title>
+    <title>Quickstart — Comprehendly docs</title>
     <link rel="stylesheet" href="assets/docs.css" />
   </head>
   <body>
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>Install and authenticate</h1>
+        <h1>Quickstart</h1>
         <p class="lead">
-          You need a Forms tenant, at least one <strong>published</strong> form page,
-          and a publishable API key.
+          Use this path when you want to prove the integration end to end: exchange a publishable key,
+          load a published page, fill a shared store, and save a submission.
         </p>
 
-        <h2>1. Tenant and key</h2>
-        <ol>
-          <li>Create an account at <a href="https://app.comprehendly.nz/signup">app.comprehendly.nz/signup</a>.</li>
-          <li>Author a form and publish it. Catalog and fill only see published pages.</li>
-          <li>Settings → API → create a <strong>publishable</strong> key (<code>pk_test_</code> or <code>pk_live_</code>).</li>
-          <li>
-            Set <strong>allowed origins</strong> to the exact origin your client sends
-            (scheme + host + port, no path). Examples:
-            <code>http://localhost:4173</code> (JS demo),
-            <code>https://ios-demo.comprehendly.nz</code> (Swift client default).
-          </li>
-        </ol>
-        <p class="note">
-          The browser never puts <code>pk_*</code> on an iframe URL. Exchange first, then pass the short-lived token.
-        </p>
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>A Comprehendly tenant with at least one published form page.</li>
+          <li>A publishable key (<code>pk_test_…</code> or <code>pk_live_…</code>).</li>
+          <li>An allowlisted origin for the client you are testing.</li>
+        </ul>
 
-        <h2>2. Scopes</h2>
-        <p>Minimum for catalog, page, fill, and save:</p>
-        <pre><code>forms.schemas:read
-forms.submissions:read
-forms.submissions:write</code></pre>
-        <p class="muted"><code>forms.schemas:read</code> is the catalog/page permission name. There is no schema-form API.</p>
-
-        <h2>3. Exchange</h2>
+        <h2>1. Exchange a publishable key</h2>
         <p>
-          <code>POST https://api.stepcare.app/functions/v1/integration_exchange</code>
+          Exchange happens once per client session. Browsers send <code>Origin</code> automatically;
+          native clients must send the same allowlisted origin explicitly.
         </p>
-        <pre><code>{
+        <pre><code>POST https://api.stepcare.app/functions/v1/integration_exchange
+{
   "key": "pk_test_…",
   "audience": "stepcare-embed",
   "requested_scopes": [
@@ -52,43 +38,48 @@ forms.submissions:write</code></pre>
     "forms.submissions:write"
   ]
 }</code></pre>
+
+        <h2>2. Load a published page</h2>
         <p>
-          Send the platform anon key as <code>apikey</code> and <code>Authorization: Bearer</code>
-          (same as <code>forms.js</code>). Native clients must also send header
-          <code>Origin</code> matching the key allowlist. Browsers set <code>Origin</code> themselves — do not override it.
+          Use <code>forms.catalog.list</code> if you need to discover a page id, then call
+          <code>forms.page.get</code>. Loading a page gives you the current element graph and refreshes the
+          <code>element.id</code> → <code>field_name</code> mapping.
         </p>
-        <p>Response includes <code>access_token</code>, <code>expires_in</code> (seconds), <code>tenant_id</code>, <code>scopes</code>.</p>
 
-        <h2>4. Gateway</h2>
+        <h2>3. Pick one surface</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Surface</th>
+              <th>When to use it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Generated <code>FormView</code></td>
+              <td>You need the SDK to render primitive controls from the page definition.</td>
+            </tr>
+            <tr>
+              <td>Bind existing fields</td>
+              <td>You already have DOM or native controls and want Comprehendly to share values with them.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">Use generated UI or bind. Do not add a second Comprehendly overlay over host widgets.</p>
+
+        <h2>4. Fill and save</h2>
         <p>
-          All operations go to
-          <code>POST …/functions/v1/integration_gateway</code>
+          Whether values came from generated controls, bound controls, or voice, save with
+          <code>forms.submissions.save</code> using <code>field_name</code>-keyed values.
         </p>
-        <pre><code>{
-  "access_token": "scist_…",
-  "operation": "forms.catalog.list",
-  "params": {}
-}</code></pre>
-        <p>Success envelope: <code>{ "data": …, "request_id": "uuid" }</code>. SDKs return <code>data</code>.</p>
 
-        <h2>Install the client</h2>
-        <h3>JavaScript</h3>
-        <pre><code>git clone https://github.com/UD-Ultradigital/comprehendly-sdk-js.git
-cd comprehendly-sdk-js
-cp demo/env.example.js demo/env.js   # set publishableKey
-python3 -m http.server 4173 --directory demo</code></pre>
-        <p>From an app, import <code>Comprehendly</code> from <code>src/index.js</code> (npm package name <code>@comprehendly/forms</code>, not on the registry yet).</p>
-
-        <h3>Swift</h3>
-        <pre><code>git clone https://github.com/UD-Ultradigital/comprehendly-sdk-swift.git
-# Xcode → Add Package Dependency → local path, product ComprehendlyForms</code></pre>
-        <p>Demo wiring: <code>Examples/Demo/ComprehendlyDemoApp.swift</code>.</p>
-
-        <h3>CLI (smoke test)</h3>
-        <p>From the private core checkout, if you have it:</p>
-        <pre><code>node cli/comprehendly.mjs init
-node cli/comprehendly.mjs doctor</code></pre>
-        <p class="muted">There is no public “create tenant from CLI” API. Signup is the browser flow above.</p>
+        <h2>Where to go next</h2>
+        <ul>
+          <li><a href="authentication.html">Authentication</a> for exchange and allowlist details.</li>
+          <li><a href="guides/render-a-form.html">Render a form</a> for generated UI.</li>
+          <li><a href="guides/bind-host-fields.html">Bind existing fields</a> for host-side controls.</li>
+          <li><a href="guides/save-a-submission.html">Save a submission</a> for the final persistence call.</li>
+        </ul>
       </main>
     </div>
     <script src="assets/nav.js"></script>

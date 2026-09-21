@@ -14,9 +14,8 @@
 
         <h2>Page vs submission</h2>
         <p>
-          A <strong>form</strong> is a published page (<code>page_type = form</code>) identified by
-          <code>page_id</code> (UUID). Fill creates a <strong>submission</strong> (child page) whose
-          values are keyed by <code>field_name</code>.
+          A published form page is the schema you load with <code>page.get(pageId)</code>. A submission is
+          saved data for that page. The submission payload is keyed by <code>field_name</code>, not labels.
         </p>
 
         <h2>Field identity</h2>
@@ -24,92 +23,73 @@
           <thead>
             <tr>
               <th>Key</th>
-              <th>Stable?</th>
               <th>Use</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td><code>element.id</code></td>
-              <td>Yes (page node)</td>
-              <td>Preferred bind key for host widgets</td>
+              <td>Stable page node id. Preferred key for binding host widgets.</td>
             </tr>
             <tr>
-              <td><code>data.field_name</code></td>
-              <td>Can change if authors rename</td>
-              <td>Voice tools, submission payload, <code>store.get</code></td>
+              <td><code>field_name</code></td>
+              <td>Engine and submission key. Use it for voice patches, store values, and save payloads.</td>
             </tr>
             <tr>
-              <td>Label</td>
-              <td>Display only</td>
-              <td>Do not match or bind on label</td>
+              <td>Label text</td>
+              <td>Display only. Never bind or save by label.</td>
             </tr>
           </tbody>
         </table>
         <p>
-          After each <code>page.get</code>, resolve <code>element.id</code> → current
-          <code>field_name</code>. The store does this internally when you <code>bind({ elementId })</code>.
+          Reload the mapping after every <code>page.get</code>. The SDK store handles this for
+          <code>bind({ elementId })</code> so host code can stay on stable element ids.
         </p>
 
         <h2>FieldStore</h2>
         <p>
-          One store per fill session. <code>page.get</code> loads fillable elements.
-          <code>set</code> / voice patches / host edits all merge into the same map.
+          Each fill session uses one FieldStore. Generated controls, bound controls, and voice patches all
+          write into the same store so save always reads a single source of truth.
         </p>
-        <p>Fillable element types: <code>form_field</code>, <code>form_field_rating</code>, <code>form_field_score</code>.</p>
         <p>
-          Generated UI in v1 implements <code>form_field</code> input types:
-          <code>text</code>, <code>textarea</code>, <code>number</code>, <code>date</code>,
-          <code>boolean</code>, <code>select</code>, <code>multiselect</code>.
-          Layout nodes (headings, columns, media) are ignored. The SDK does not clone page layout.
+          Fillable elements are <code>form_field</code>, <code>form_field_rating</code>, and
+          <code>form_field_score</code>. Generated UI in v1 only renders primitive <code>form_field</code>
+          input types; other fillable elements still appear in the store.
         </p>
 
-        <h2>Generated vs bound</h2>
+        <h2>Surfaces</h2>
         <table>
           <thead>
             <tr>
               <th>Surface</th>
-              <th>Who draws the control</th>
-              <th>When</th>
+              <th>Who renders it</th>
+              <th>Best for</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Generated (<code>FormView</code>)</td>
+              <td>Generated <code>FormView</code></td>
               <td>SDK</td>
-              <td>You do not already have a form UI</td>
+              <td>Fast starts where a linear list of primitive controls is acceptable.</td>
             </tr>
             <tr>
               <td>Bound</td>
               <td>Your app</td>
-              <td>Existing or heavily styled widgets. Map <code>element.id</code> → control.</td>
+              <td>Existing or branded widgets mapped from <code>element.id</code>.</td>
             </tr>
           </tbody>
         </table>
-        <p>Do not overlay Comprehendly chrome on host widgets. Unmapped fields still live in the store; show them separately or drop them.</p>
+        <p class="note">Choose generated UI or bind for each field. Do not overlay Comprehendly chrome on top of existing widgets.</p>
 
-        <h2>Voice modes</h2>
-        <table>
-          <thead>
-            <tr>
-              <th><code>session_mode</code></th>
-              <th>Behaviour</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>silent</code> (default)</td>
-              <td>Mic capture, no spoken assistant</td>
-            </tr>
-            <tr>
-              <td><code>assistant</code></td>
-              <td>Spoken walkthrough of the same page</td>
-            </tr>
-          </tbody>
-        </table>
+        <h2>Voice</h2>
         <p>
-          Mint is <code>forms.voice.start</code>. The talker is hosted Realtime, not a platform speech API.
-          Native apps should load the WebView bridge; do not reimplement the Realtime client in v1.
+          Voice capture stays on the hosted <a href="voice-bridge.html"><code>voice-bridge.html</code></a>
+          page and the forms fill embed. SDKs mint voice sessions with <code>forms.voice.start</code>, then pass the
+          short-lived token into the hosted bridge instead of reimplementing the Realtime client.
+        </p>
+        <p>
+          Forms embed v1.3 posts <code>stepcare:fields_updated</code> as values change and
+          <code>stepcare:submission_saved</code> when the hosted flow saves.
         </p>
       </main>
     </div>

@@ -11,7 +11,33 @@
       <nav id="nav"></nav>
       <main>
         <h1>API reference</h1>
-        <p>Contract: <a href="spec/sdk-api.md">spec/sdk-api.md</a> · Wire: <a href="spec/openapi.yaml">spec/openapi.yaml</a>.</p>
+        <p>
+          Human-readable contract: <a href="spec/sdk-api.md">spec/sdk-api.md</a> · Machine-readable contract:
+          <a href="spec/openapi.yaml">spec/openapi.yaml</a>.
+        </p>
+
+        <h2>Exchange and gateway</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Purpose</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>POST /integration_exchange</code></td>
+              <td>Exchange a publishable key for a short-lived token</td>
+              <td>Requires an allowlisted <code>Origin</code>.</td>
+            </tr>
+            <tr>
+              <td><code>POST /integration_gateway</code></td>
+              <td>Invoke Forms operations</td>
+              <td>Requests include <code>access_token</code>, <code>operation</code>, and <code>params</code>.</td>
+            </tr>
+          </tbody>
+        </table>
 
         <h2>SDK methods</h2>
         <table>
@@ -24,45 +50,39 @@
           </thead>
           <tbody>
             <tr>
-              <td><code>configure</code> / constructor / <code>exchange</code></td>
+              <td><code>exchange()</code></td>
               <td><code>integration_exchange</code></td>
-              <td>Publishable key → <code>access_token</code></td>
+              <td>Uses the configured publishable key and origin.</td>
             </tr>
             <tr>
               <td><code>catalog.list(parentId?)</code></td>
               <td><code>forms.catalog.list</code></td>
-              <td>Folders + published form pages</td>
+              <td>Lists folders and published form pages.</td>
             </tr>
             <tr>
               <td><code>page.get(pageId)</code></td>
               <td><code>forms.page.get</code></td>
-              <td>Page + elements; loads FieldStore</td>
+              <td>Loads the current page schema and refreshes store bindings.</td>
             </tr>
             <tr>
               <td><code>session.start({ pageId, mode })</code></td>
               <td><code>forms.voice.start</code></td>
-              <td><code>mode</code>: <code>silent</code> | <code>assistant</code></td>
+              <td>Use the returned token with the hosted voice bridge.</td>
             </tr>
             <tr>
-              <td><code>session.resolve</code></td>
-              <td><code>session.resolve</code></td>
-              <td>Tenant, scopes, <code>submitter_user_id</code></td>
-            </tr>
-            <tr>
-              <td><code>submissions.save</code></td>
+              <td><code>submissions.save(...)</code></td>
               <td><code>forms.submissions.save</code></td>
-              <td>Values keyed by <code>field_name</code></td>
+              <td>Payload values are keyed by <code>field_name</code>.</td>
             </tr>
             <tr>
-              <td><code>store.set / bind / subscribe</code></td>
-              <td>—</td>
-              <td>Local only. Patch schema: <a href="spec/field-patch.schema.json">field-patch.schema.json</a></td>
+              <td><code>store.bind</code> / <code>store.set</code> / <code>store.values</code></td>
+              <td>Local only</td>
+              <td>Bind with <code>element.id</code>, save with <code>field_name</code>.</td>
             </tr>
           </tbody>
         </table>
 
-        <h2>Other gateway operations</h2>
-        <p>Available on the gateway even if a given SDK has no helper yet:</p>
+        <h2>Additional gateway operations</h2>
         <table>
           <thead>
             <tr>
@@ -72,27 +92,21 @@
           </thead>
           <tbody>
             <tr>
-              <td><code>forms.submissions.list</code> / <code>.get</code></td>
-              <td>Read submissions; optional <code>subject_id</code></td>
+              <td><code>forms.submissions.list</code> / <code>forms.submissions.get</code></td>
+              <td>Read previously saved submissions.</td>
             </tr>
             <tr>
-              <td><code>session.prepare</code> / <code>.get</code> / <code>.complete</code></td>
-              <td>Server-side subject context; <code>prepared_session</code> on fill URLs</td>
+              <td><code>session.prepare</code> / <code>session.get</code> / <code>session.complete</code></td>
+              <td>Manage prepared sessions and related fill context.</td>
             </tr>
           </tbody>
         </table>
-        <p>JS: <code>client.gateway(operation, params)</code>. Swift: <code>client.gateway(_:params:)</code>.</p>
 
-        <h2>FieldStore patch</h2>
-        <pre><code>{
-  "element_id": "string | null",
-  "field_name": "string",
-  "value": {},
-  "source": "user" | "voice" | "bind" | "hydrate"
-}</code></pre>
-
-        <h2>Platform defaults</h2>
-        <p>See <a href="spec/platform.json">spec/platform.json</a> (<code>functionsUrl</code>, signup, embed script).</p>
+        <h2>OpenAPI</h2>
+        <p>
+          Download the full OpenAPI document at <a href="spec/openapi.yaml">spec/openapi.yaml</a> when you need
+          exact request and response envelopes.
+        </p>
       </main>
     </div>
     <script src="assets/nav.js"></script>

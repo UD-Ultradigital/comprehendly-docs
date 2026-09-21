@@ -5,7 +5,7 @@
   function fileActive(file) {
     if (file === 'index.html') {
       return /(?:^|\/)(index\.html)?$/.test(path) && path.indexOf('/guides/') === -1 &&
-        !/\/(start|concepts|javascript|swift|reference|errors)(\.html)?$/.test(path)
+        !/\/(start|authentication|concepts|javascript|swift|reference|errors)(\.html)?$/.test(path)
     }
     return path.endsWith('/' + file) || path.endsWith(file)
   }
@@ -16,15 +16,17 @@
   if (!nav) return
   nav.innerHTML =
     '<a class="brand" href="' + r + '/index.html">Comprehendly docs</a>' +
-    '<p class="label">Start</p>' +
-    item('index.html', 'Overview') +
-    item('start.html', 'Install and authenticate') +
+    '<p class="label">Get started</p>' +
+    item('index.html', 'Introduction') +
+    item('start.html', 'Quickstart') +
+    item('authentication.html', 'Authentication') +
     item('concepts.html', 'Concepts') +
-    '<p class="label">Guides</p>' +
-    item('guides/render-a-form.html', 'Render a form from a page') +
+    '<p class="label">How-to</p>' +
+    item('guides/render-a-form.html', 'Render a form') +
     item('guides/bind-host-fields.html', 'Bind existing fields') +
-    item('guides/voice.html', 'Voice: assistant and silent') +
-    '<p class="label">Platforms</p>' +
+    item('guides/voice.html', 'Fill with voice') +
+    item('guides/save-a-submission.html', 'Save a submission') +
+    '<p class="label">SDKs</p>' +
     item('javascript.html', 'JavaScript') +
     item('swift.html', 'Swift') +
     '<p class="label">Reference</p>' +

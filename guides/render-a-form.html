@@ -3,57 +3,83 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Render a form from a page — Comprehendly docs</title>
+    <title>Render a form — Comprehendly docs</title>
     <link rel="stylesheet" href="../assets/docs.css" />
   </head>
   <body>
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>Render a form from a page</h1>
+        <h1>Render a form</h1>
         <p class="lead">
-          Use case: the host app has no form UI. Load a published <code>page_id</code> and let the SDK draw primitive controls.
+          <strong>Use case:</strong> your app does not already have a form UI and you want the SDK to render
+          a simple, generated surface from a published page.
         </p>
 
-        <h2>Steps</h2>
-        <ol>
-          <li>Authenticate (<a href="../start.html">exchange</a>).</li>
-          <li><code>catalog.list()</code> if you do not already have a page UUID.</li>
-          <li><code>page.get(pageId)</code> — loads FieldStore with fillable fields.</li>
-          <li>Mount generated UI (<code>FormView</code> / walk <code>store.fields()</code>).</li>
-          <li>On submit, <code>submissions.save</code> with <code>store.values()</code> keyed by <code>field_name</code>.</li>
-        </ol>
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>A published <code>page_id</code>.</li>
+          <li>A publishable key with an allowlisted client origin.</li>
+          <li><code>forms.schemas:read</code> and <code>forms.submissions:write</code> on the exchanged token.</li>
+        </ul>
 
         <h2>JavaScript</h2>
-        <pre><code>import { Comprehendly } from '../src/index.js'
+        <pre><code>import { Comprehendly } from './src/index.js'
 
-const client = new Comprehendly({ publishableKey: 'pk_test_…' })
+const client = new Comprehendly({
+  publishableKey: 'pk_test_…'
+})
+
 await client.exchange()
+const page = await client.page.get('00000000-0000-0000-0000-000000000000')
 
-const catalog = await client.catalog.list()
-const pageId = catalog.forms[0].id
-const page = await client.page.get(pageId)
+const form = document.getElementById('generated-form')
+form.innerHTML = ''
 
 for (const field of client.store.fields()) {
   if (!field.generated) continue
-  // create input; on input:
-  client.store.set({ fieldName: field.fieldName, value, source: 'user' })
+
+  const label = document.createElement('label')
+  label.textContent = field.label || field.fieldName
+
+  const input = document.createElement('input')
+  input.value = client.store.get(field.fieldName) ?? ''
+  input.addEventListener('input', () => {
+    client.store.set({
+      fieldName: field.fieldName,
+      value: input.value,
+      source: 'user'
+    })
+  })
+
+  form.append(label, input)
 }</code></pre>
-        <p>Runnable: clone <code>comprehendly-sdk-js</code>, run the demo server; the <strong>Generated</strong> section is this path.</p>
 
         <h2>Swift</h2>
-        <pre><code>let client = ComprehendlyClient(publishableKey: "pk_test_…")
-try await client.exchange()
-let page = try await client.pageGet(pageId)
-// SwiftUI
-ComprehendlyFormView(store: client.store)</code></pre>
+        <pre><code>import ComprehendlyForms
+import SwiftUI
+
+struct GeneratedFormScreen: View {
+  @StateObject private var client = ComprehendlyClient(publishableKey: "pk_test_…")
+  let pageId = "00000000-0000-0000-0000-000000000000"
+
+  var body: some View {
+    ComprehendlyFormView(store: client.store)
+      .task {
+        try await client.exchange()
+        _ = try await client.pageGet(pageId)
+      }
+  }
+}</code></pre>
 
         <h2>Limits</h2>
         <ul>
-          <li>Linear list only. No page layout, columns, or custom CSS from the Comprehendly editor.</li>
-          <li>Rating, score, and tree elements are in the store but not drawn in v1 generated UI.</li>
-          <li>If you need pixel-matched branding, use <a href="bind-host-fields.html">bind</a> or the iframe widget.</li>
+          <li>Generated UI is a linear list of primitive controls, not a clone of editor layout, grids, or media.</li>
+          <li><code>form_field_rating</code> and <code>form_field_score</code> are loaded into the store but not rendered by the v1 generated surface.</li>
+          <li>If you already have branded or custom controls, switch to <a href="bind-host-fields.html">Bind existing fields</a> instead of layering both surfaces together.</li>
         </ul>
+
+        <p class="muted">Next step: <a href="save-a-submission.html">Save a submission</a> once the generated store has values.</p>
       </main>
     </div>
     <script src="../assets/nav.js"></script>
