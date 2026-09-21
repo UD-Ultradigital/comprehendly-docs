@@ -3,41 +3,69 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>JavaScript — Comprehendly docs</title>
+    <title>JavaScript SDK — Comprehendly docs</title>
     <link rel="stylesheet" href="assets/docs.css" />
   </head>
   <body>
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>JavaScript</h1>
-        <p>
-          Repo: <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-js">comprehendly-sdk-js</a>.
+        <h1>JavaScript SDK</h1>
+        <p class="lead">
+          Package source:
+          <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-js">comprehendly-sdk-js</a>.
           Entry: <code>src/index.js</code> (<code>export class Comprehendly</code>).
+          Not on the public npm registry yet — import from the repo (or vendor the files).
         </p>
 
-        <h2>Constructor</h2>
-        <pre><code>new Comprehendly({
-  publishableKey,      // required
-  origin,              // set Origin header only in non-browser runtimes
-  functionsUrl,        // default production Functions URL
-  anonKey              // default platform anon key
-})</code></pre>
-        <p><code>client.store</code> is created with the client. <code>page.get</code> calls <code>store.loadPage</code>.</p>
-
-        <h2>Demo</h2>
+        <h2>Install and demo</h2>
         <pre><code>git clone https://github.com/UD-Ultradigital/comprehendly-sdk-js.git
 cd comprehendly-sdk-js
 cp demo/env.example.js demo/env.js
-# publishableKey, optional pageId
-python3 -m http.server 4173 --directory demo</code></pre>
-        <p>Allowlist <code>http://localhost:4173</code>. The page shows generated controls and host-bound inputs on the same store.</p>
+# set publishableKey; optional pageId, sdkOrigin
+npm run demo
+# open http://localhost:4173/demo/</code></pre>
+        <p>Allowlist <code>http://localhost:4173</code>. Open that origin in the browser (not <code>file://</code>).</p>
+
+        <h2>Client</h2>
+        <pre><code>import { Comprehendly, mountVoiceBridge } from './src/index.js'
+
+const client = new Comprehendly({
+  publishableKey: 'pk_test_…',
+  origin: undefined,          // browsers set Origin; Node must pass an allowlisted origin
+  functionsUrl: undefined,    // default production Functions URL
+  anonKey: undefined
+})
+
+await client.exchange()
+const catalog = await client.catalog.list()
+const page = await client.page.get(catalog.forms[0].id)
+client.store.set({ fieldName: 'mood', value: 'ok', source: 'user' })
+await client.submissions.save({
+  page_id: page.id || catalog.forms[0].id,
+  field_values: client.store.values()
+})</code></pre>
+        <p><code>page.get</code> calls <code>store.loadPage</code>. Bind with <code>store.bind({ elementId }, apply)</code>.</p>
+
+        <h2>Voice iframe</h2>
+        <pre><code>mountVoiceBridge('#voice', {
+  token: client.accessToken,
+  pageId,
+  mode: 'silent',
+  store: client.store,
+  sdkOrigin: env.sdkOrigin   // optional; default sdk.comprehendly.nz
+})</code></pre>
 
         <h2>CDN widget</h2>
         <p>
-          <a href="https://sdk.comprehendly.nz/embed/v1/forms.js"><code>https://sdk.comprehendly.nz/embed/v1/forms.js</code></a>
-          mounts iframes (<code>StepCareForms.init</code>). Use it when you want the hosted fill UI, not FieldStore.
+          <a href="https://sdk.comprehendly.nz/embed/v1/forms.js"><code>forms.js</code></a>
+          mounts hosted iframes (<code>StepCareForms.init</code>). That path does not use FieldStore.
         </p>
+
+        <div class="pager">
+          <a href="guides/save-a-submission.html"><span>Previous</span>Save a submission</a>
+          <a href="swift.html"><span>Next</span>Swift SDK</a>
+        </div>
       </main>
     </div>
     <script src="assets/nav.js"></script>

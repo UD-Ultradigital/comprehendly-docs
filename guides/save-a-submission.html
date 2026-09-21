@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Save a submission — Comprehendly docs</title>
+    <link rel="stylesheet" href="../assets/docs.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Save a submission</h1>
+        <p class="lead">
+          Use case: persist FieldStore values as a form submission. Keys must be
+          <code>field_name</code>, not labels or element ids.
+        </p>
+
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>Exchange succeeded (<a href="../start.html">Authentication</a>).</li>
+          <li><code>page.get</code> loaded the store for this <code>page_id</code>.</li>
+          <li>Key scope <code>forms.submissions:write</code>.</li>
+        </ul>
+
+        <h2>Payload</h2>
+        <p>
+          Gateway operation <code>forms.submissions.save</code>. The SDK wraps
+          <code>page_id</code> and <code>field_values</code> in <code>params.payload</code>.
+        </p>
+        <pre><code>{
+  "page_id": "uuid-of-published-form",
+  "field_values": {
+    "mood": "ok",
+    "notes": "slept well"
+  }
+}</code></pre>
+        <p>Optional: <code>title</code>, <code>subject_id</code>, <code>subject_type</code>.</p>
+
+        <h2>JavaScript</h2>
+        <pre><code>await client.submissions.save({
+  page_id: pageId,
+  field_values: client.store.values()
+})</code></pre>
+        <p>
+          <code>store.values()</code> is a map of <code>field_name</code> → current value.
+          Empty fields are omitted unless you set them.
+        </p>
+
+        <h2>Swift</h2>
+        <pre><code>let saved = try await client.submissionsSave(
+  pageId: pageId,
+  fieldValues: client.store.values
+)</code></pre>
+        <p>
+          If your checkout predates <code>submissionsSave</code>, call the same operation
+          through <code>gateway("forms.submissions.save", params: ["payload": payload])</code>.
+        </p>
+
+        <h2>Read back</h2>
+        <pre><code>const row = await client.submissions.get(saved.id)
+// Swift: try await client.submissionsGet(id)</code></pre>
+
+        <h2>Limits</h2>
+        <ul>
+          <li>Saving does not publish a form. The template page must already be published.</li>
+          <li>Unknown <code>field_name</code> keys are ignored or rejected by the server — do not invent names from labels.</li>
+        </ul>
+
+        <div class="pager">
+          <a href="voice.html"><span>Previous</span>Fill with voice</a>
+          <a href="../javascript.html"><span>Next</span>JavaScript SDK</a>
+        </div>
+      </main>
+    </div>
+    <script src="../assets/nav.js"></script>
+  </body>
+</html>

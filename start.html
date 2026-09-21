@@ -3,43 +3,76 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Install and authenticate — Comprehendly docs</title>
+    <title>Authentication — Comprehendly docs</title>
     <link rel="stylesheet" href="assets/docs.css" />
   </head>
   <body>
     <div class="wrap">
       <nav id="nav"></nav>
       <main>
-        <h1>Install and authenticate</h1>
+        <h1>Authentication</h1>
         <p class="lead">
-          You need a Forms tenant, at least one <strong>published</strong> form page,
-          and a publishable API key.
+          Publishable keys exchange for a short-lived access token. That token is
+          the credential for every gateway call.
         </p>
 
-        <h2>1. Tenant and key</h2>
+        <div class="toc">
+          <p>On this page</p>
+          <ul>
+            <li><a href="#key">Publishable key</a></li>
+            <li><a href="#origin">Origin allowlist</a></li>
+            <li><a href="#scopes">Scopes</a></li>
+            <li><a href="#exchange">Exchange</a></li>
+            <li><a href="#gateway">Gateway</a></li>
+          </ul>
+        </div>
+
+        <h2 id="key">Publishable key</h2>
         <ol>
-          <li>Create an account at <a href="https://app.comprehendly.nz/signup">app.comprehendly.nz/signup</a>.</li>
-          <li>Author a form and publish it. Catalog and fill only see published pages.</li>
-          <li>Settings → API → create a <strong>publishable</strong> key (<code>pk_test_</code> or <code>pk_live_</code>).</li>
-          <li>
-            Set <strong>allowed origins</strong> to the exact origin your client sends
-            (scheme + host + port, no path). Examples:
-            <code>http://localhost:4173</code> (JS demo),
-            <code>https://ios-demo.comprehendly.nz</code> (Swift client default).
-          </li>
+          <li>Sign up at <a href="https://app.comprehendly.nz/signup">app.comprehendly.nz/signup</a>.</li>
+          <li>Author a form and publish it. Catalog and fill only return published pages.</li>
+          <li>Settings → API → create a publishable key (<code>pk_test_</code> or <code>pk_live_</code>).</li>
         </ol>
         <p class="note">
-          The browser never puts <code>pk_*</code> on an iframe URL. Exchange first, then pass the short-lived token.
+          Do not put <code>pk_*</code> on an iframe query string. Exchange first, then pass the token.
         </p>
 
-        <h2>2. Scopes</h2>
+        <h2 id="origin">Origin allowlist</h2>
+        <p>
+          Each key lists allowed origins (scheme + host + port, no path). The
+          request <code>Origin</code> header must match one entry exactly.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Typical origin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>JS demo</td>
+              <td><code>http://localhost:4173</code></td>
+            </tr>
+            <tr>
+              <td>Swift (SDK default)</td>
+              <td><code>https://ios-demo.comprehendly.nz</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Browsers set <code>Origin</code> themselves. Native clients must set the header
+          (<code>ComprehendlyClient.origin</code>). <code>file://</code> pages have no usable origin — serve over HTTP.
+        </p>
+
+        <h2 id="scopes">Scopes</h2>
         <p>Minimum for catalog, page, fill, and save:</p>
         <pre><code>forms.schemas:read
 forms.submissions:read
 forms.submissions:write</code></pre>
-        <p class="muted"><code>forms.schemas:read</code> is the catalog/page permission name. There is no schema-form API.</p>
+        <p class="muted"><code>forms.schemas:read</code> is the catalog/page permission. There is no separate schema-form API.</p>
 
-        <h2>3. Exchange</h2>
+        <h2 id="exchange">Exchange</h2>
         <p>
           <code>POST https://api.stepcare.app/functions/v1/integration_exchange</code>
         </p>
@@ -53,42 +86,30 @@ forms.submissions:write</code></pre>
   ]
 }</code></pre>
         <p>
-          Send the platform anon key as <code>apikey</code> and <code>Authorization: Bearer</code>
-          (same as <code>forms.js</code>). Native clients must also send header
-          <code>Origin</code> matching the key allowlist. Browsers set <code>Origin</code> themselves — do not override it.
+          Send the platform anon key as <code>apikey</code> and
+          <code>Authorization: Bearer</code> (same as <code>forms.js</code>).
+          SDKs do this in <code>exchange()</code>.
         </p>
-        <p>Response includes <code>access_token</code>, <code>expires_in</code> (seconds), <code>tenant_id</code>, <code>scopes</code>.</p>
+        <p>Response: <code>access_token</code>, <code>expires_in</code> (seconds), <code>tenant_id</code>, <code>scopes</code>.</p>
 
-        <h2>4. Gateway</h2>
+        <h2 id="gateway">Gateway</h2>
         <p>
-          All operations go to
-          <code>POST …/functions/v1/integration_gateway</code>
+          <code>POST https://api.stepcare.app/functions/v1/integration_gateway</code>
         </p>
         <pre><code>{
   "access_token": "scist_…",
   "operation": "forms.catalog.list",
   "params": {}
 }</code></pre>
-        <p>Success envelope: <code>{ "data": …, "request_id": "uuid" }</code>. SDKs return <code>data</code>.</p>
+        <p>
+          Success envelope: <code>{ "data": …, "request_id": "uuid" }</code>.
+          SDKs return <code>data</code>. Error shape: <a href="errors.html">Errors</a>.
+        </p>
 
-        <h2>Install the client</h2>
-        <h3>JavaScript</h3>
-        <pre><code>git clone https://github.com/UD-Ultradigital/comprehendly-sdk-js.git
-cd comprehendly-sdk-js
-cp demo/env.example.js demo/env.js   # set publishableKey
-python3 -m http.server 4173 --directory demo</code></pre>
-        <p>From an app, import <code>Comprehendly</code> from <code>src/index.js</code> (npm package name <code>@comprehendly/forms</code>, not on the registry yet).</p>
-
-        <h3>Swift</h3>
-        <pre><code>git clone https://github.com/UD-Ultradigital/comprehendly-sdk-swift.git
-# Xcode → Add Package Dependency → local path, product ComprehendlyForms</code></pre>
-        <p>Demo wiring: <code>Examples/Demo/ComprehendlyDemoApp.swift</code>.</p>
-
-        <h3>CLI (smoke test)</h3>
-        <p>From the private core checkout, if you have it:</p>
-        <pre><code>node cli/comprehendly.mjs init
-node cli/comprehendly.mjs doctor</code></pre>
-        <p class="muted">There is no public “create tenant from CLI” API. Signup is the browser flow above.</p>
+        <div class="pager">
+          <a href="quickstart.html"><span>Previous</span>Quickstart</a>
+          <a href="concepts.html"><span>Next</span>Concepts</a>
+        </div>
       </main>
     </div>
     <script src="assets/nav.js"></script>
