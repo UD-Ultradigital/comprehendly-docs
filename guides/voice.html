@@ -54,10 +54,8 @@ window.addEventListener('message', (event) => {
   if (!voiceFrame) return
 
   const bridgeURL = new URL(voiceFrame.src ?? '../voice-bridge.html', window.location.href)
-  const embedOrigin = new URL(bridgeURL.searchParams.get('base_url') ?? 'https://sdk.comprehendly.nz').origin
-  const fromBridge = event.source === voiceFrame.contentWindow && event.origin === bridgeURL.origin
-  const fromEmbed = event.origin === embedOrigin
-  if (!fromBridge && !fromEmbed) return
+  if (event.source !== voiceFrame.contentWindow) return
+  if (event.origin !== bridgeURL.origin) return
   if (event.data?.type === 'stepcare:fields_updated') {
     console.log('Field values updated from voice', event.data.field_values)
   }
@@ -77,7 +75,7 @@ let voiceURL = try client.voiceBridgeURL(
 
 VoiceBridgeView(url: voiceURL, store: client.store)</code></pre>
 
-        <p class="note">If <code>ensureExchangeToken()</code> refreshes the short-lived token later, call <code>mountVoice()</code> again so the bridge reloads with the new token.</p>
+        <p class="note">If <code>ensureExchangeToken()</code> refreshes the short-lived token later, call <code>mountVoice()</code> again so the bridge reloads with the new token. In this hosted-bridge flow, listen for the forwarded message from the mounted <code>voice-bridge.html</code> iframe rather than trusting unrelated frames from the same embed origin.</p>
 
         <h2>Limits</h2>
         <ul>
