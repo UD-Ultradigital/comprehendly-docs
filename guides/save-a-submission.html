@@ -32,8 +32,6 @@ await client.page.get('00000000-0000-0000-0000-000000000000')
 
 const fieldValues = client.store.values()
 
-await client.exchange()
-
 const submission = await client.submissions.save({
   pageId: '00000000-0000-0000-0000-000000000000',
   fieldValues
@@ -47,8 +45,6 @@ console.log('Saved submission', submission.id)</code></pre>
 let client = ComprehendlyClient(publishableKey: "pk_test_…")
 try await client.exchange()
 _ = try await client.pageGet("00000000-0000-0000-0000-000000000000")
-
-try await client.exchange()
 
 let submission = try await client.submissionsSave(
   pageId: "00000000-0000-0000-0000-000000000000",
