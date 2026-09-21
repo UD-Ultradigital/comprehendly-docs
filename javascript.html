@@ -13,7 +13,7 @@
         <h1>JavaScript</h1>
         <p>
           Repo: <a href="https://github.com/UD-Ultradigital/comprehendly-sdk-js">github.com/UD-Ultradigital/comprehendly-sdk-js</a>.
-          The client exposes <code>Comprehendly</code>, a shared <code>store</code>, and helpers for voice bridge mounting.
+          The client exposes <code>Comprehendly</code>, the generated-surface <code>FormView</code>, a shared <code>store</code>, and helpers for voice bridge mounting.
         </p>
 
         <h2>Constructor</h2>
@@ -89,6 +89,15 @@ document.querySelector('#save').addEventListener('click', async () => {
           Do not draw both for the same field. Bind through <code>element.id</code>; save through the store's
           <code>field_name</code>-keyed values.
         </p>
+
+        <h2>Generated UI</h2>
+        <pre><code>const form = new FormView({
+  target: document.getElementById('generated-form'),
+  store: client.store
+})
+
+form.render()</code></pre>
+        <p><code>FormView</code> is the supported JavaScript generated surface when you want the SDK to render primitive controls from the loaded page.</p>
 
         <h2>Demo</h2>
         <pre><code>git clone https://github.com/UD-Ultradigital/comprehendly-sdk-js.git

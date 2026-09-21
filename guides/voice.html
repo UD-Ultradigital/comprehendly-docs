@@ -52,12 +52,11 @@ mountVoice()
 window.addEventListener('message', (event) => {
   const voiceFrame = document.querySelector('#voice iframe')
   if (!voiceFrame) return
-
-  const bridgeURL = new URL(voiceFrame.src ?? '../voice-bridge.html', window.location.href)
   if (event.source !== voiceFrame.contentWindow) return
-  if (event.origin !== bridgeURL.origin) return
-  if (event.data?.type === 'stepcare:fields_updated') {
-    console.log('Field values updated from voice', event.data.field_values)
+
+  const fieldValues = event.data?.field_values ?? event.data?.fieldValues
+  if (event.data?.type === 'stepcare:fields_updated' && fieldValues) {
+    console.log('Field values updated from voice', fieldValues)
   }
 })</code></pre>
 
