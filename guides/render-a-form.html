@@ -24,35 +24,21 @@
         </ul>
 
         <h2>JavaScript</h2>
-        <pre><code>import { Comprehendly } from '../src/index.js'
+        <pre><code>import { Comprehendly, FormView } from '../src/index.js'
 
 const client = new Comprehendly({
   publishableKey: 'pk_test_…'
 })
 
 await client.exchange()
-const page = await client.page.get('00000000-0000-0000-0000-000000000000')
+await client.page.get('00000000-0000-0000-0000-000000000000')
 
-const form = document.getElementById('generated-form')
-form.innerHTML = ''
+const form = new FormView({
+  target: document.getElementById('generated-form'),
+  store: client.store
+})
 
-for (const field of client.store.fields()) {
-  if (!field.generated) continue
-
-  const label = document.createElement('label')
-  label.textContent = field.label || field.fieldName
-
-  const input = document.createElement('input')
-  input.addEventListener('input', () => {
-    client.store.set({
-      fieldName: field.fieldName,
-      value: input.value,
-      source: 'user'
-    })
-  })
-
-  form.append(label, input)
-}</code></pre>
+form.render()</code></pre>
 
         <h2>Swift</h2>
         <pre><code>import ComprehendlyForms
